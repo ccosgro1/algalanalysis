@@ -1,0 +1,149 @@
+sampleID,AFDM,ChlA,treatment
+Ford 37,3,0,control
+Ford 38,2,0,control
+Ford 39,2,0.00178,control
+Ford 40,2,0,control
+Ford 41,4,0,nitrogen
+Ford 42,3,0.00178,nitrogen
+Ford 43,3,0.00178,nitrogen
+Ford 44,0,0.00356,nitrogen
+Ford 45,3,0.00534,phosphorus
+Ford 46,3,0,phosphorus
+Ford 47,3,0.0089,phosphorus
+Ford 48,4,0.0089,phosphorus
+Ford 49,3,0.00178,trace
+Ford 50,3,0.0089,trace
+Ford 51,3,0,trace
+Ford 52,2,0,trace
+Ford 53,2,0.00178,n+trace
+Ford 54,3,0.00178,n+trace
+Ford 55,5,0,n+trace
+Ford 56,3,0,n+trace
+Ford 57,3,0.01246,p+trace
+Ford 58,4,0.01068,p+trace
+Ford 59,6,0.01246,p+trace
+Ford 60,4,0.0089,p+trace
+Ford 61,4,0.01602,n+p
+Ford 62,3,0.01246,n+p
+Ford 63,3,0.01424,n+p
+Ford 64,3,0.01424,n+p
+Ford 65,3,0.01424,n+p+trace
+Ford 66,5,0.0267,n+p+trace
+Ford 67,3,0.00356,n+p+trace
+Ford 68,5,0.0178,n+p+trace
+Ford 69,5,0.00356,chelex
+Ford 70,6,0,chelex
+Ford 71,4,0,chelex
+Ford 72,7,0.00712,chelex
+Ford Initial,3,0.001186667,initial
+GB1,33,0.059185,control
+GB2,44,0.0445,control
+GB3,35,0.03738,control
+GB4,39,0.0534,control
+GB5,50,0.09345,nitrogen
+GB6,43,0.100125,nitrogen
+GB7,50,0.089,nitrogen
+GB8,54,0.06675,nitrogen
+GB9,38,0.0356,phosphorus
+GB10,40,0.05785,phosphorus
+GB11,39,0.0534,phosphorus
+GB12,38,0.0623,phosphorus
+GB13,38,0.06675,trace
+GB14,37,0.060075,trace
+GB15,38,0.0534,trace
+GB16,40,0.0534,trace
+GB17,60,0.0801,n+trace
+GB18,49,0.0712,n+trace
+GB19,60,0.07832,n+trace
+GB20,55,0.0801,n+trace
+GB21,37,0.0445,p+trace
+GB22,33,0.0445,p+trace
+GB23,40,0.04005,p+trace
+GB24,41,0.0445,p+trace
+GB25,48,0.089,n+p
+GB26,50,0.073425,n+p
+GB27,43,0.07565,n+p
+GB28,51,0.0801,n+p
+GB29,46,0.07565,n+p+trace
+GB30,47,0.07565,n+p+trace
+GB31,47,0.04895,n+p+trace
+GB32,47,0.0712,n+p+trace
+GB33,46,0.0534,chelex
+GB34,39,0.04005,chelex
+GB35,42,0.0445,chelex
+GB36,41,0.0445,chelex
+GB Initial,24,0.0712,initial
+NE 1,3,0,control
+NE 2,3.5,0.01335,control
+NE 3,5.5,0.01335,control
+NE 4,4,0.01335,control
+NE 5,5.5,0,nitrogen
+NE 6,4.5,0,nitrogen
+NE 7,3.5,0.01335,nitrogen
+NE 8,4,0.01068,nitrogen
+NE 9,5,0.00534,phosphorus
+NE 10,5.5,0.04539,phosphorus
+NE 11,5.5,0.04539,phosphorus
+NE 12,5,0.04539,phosphorus
+NE 13,4,0.01068,trace
+NE 14,5.5,0.01068,trace
+NE 15,4,0,trace
+NE 16,4,0.00534,trace
+NE 17,4,0.01068,n+trace
+NE 18,1,0.01335,n+trace
+NE 19,3.5,0.00801,n+trace
+NE 20,3.5,0.00534,n+trace
+NE 21,9,0.04005,p+trace
+NE 22,8,0.00534,p+trace
+NE 23,8,0.03738,p+trace
+NE 24,6,0.04806,p+trace
+NE 25,8,0.06408,n+p
+NE 26,6,0.068085,n+p
+NE 27,8.7,0.060075,n+p
+NE 28,6,0.044055,n+p
+NE 29,10,0.11214,n+p+trace
+NE 30,11,0.08544,n+p+trace
+NE 31,10,0.11748,n+p+trace
+NE 32,7,0.1068,n+p+trace
+NE 33,7,0.01335,chelex
+NE 34,4.5,0.01068,chelex
+NE 35,5.5,0.01602,chelex
+NE 36,5.5,0.00801,chelex
+NE Initial,1.3,0.00979,initial
+Maumee 37,20.66666667,0.126825,control
+Maumee 38,20.66666667,0.1301625,control
+Maumee 39,27.33333333,0.1234875,control
+Maumee 40,18.66666667,0.180225,control
+Maumee 41,26,0.1602,nitrogen
+Maumee 42,26,0.113475,nitrogen
+Maumee 43,23.33333333,0.166875,nitrogen
+Maumee 44,24.66666667,0.15519375,nitrogen
+Maumee 45,27.33333333,0.1702125,phosphorus
+Maumee 46,18.66666667,0.1568625,phosphorus
+Maumee 47,30.66666667,0.1435125,phosphorus
+Maumee 48,18,0.1702125,phosphorus
+Maumee 49,20.66666667,0.1435125,trace
+Maumee 50,27.33333333,0.140175,trace
+Maumee 51,27,0.113475,trace
+Maumee 52,30.66666667,0.1335,trace
+Maumee 53,27.33333333,0.180225,n+trace
+Maumee 54,26,0.1702125,n+trace
+Maumee 55,32,0.1635375,n+trace
+Maumee 56,31.33333333,0.166875,n+trace
+Maumee 57,23.33333333,0.126825,p+trace
+Maumee 58,15.33333333,0.1635375,p+trace
+Maumee 59,18.66666667,0.1835625,p+trace
+Maumee 60,23.33333333,0.1501875,p+trace
+Maumee 61,22.66666667,0.1635375,n+p
+Maumee 62,20.66666667,0.1702125,n+p
+Maumee 63,20.66666667,0.193575,n+p
+Maumee 64,26.66666667,0.1835625,n+p
+Maumee 65,20.66666667,0.1635375,n+p+trace
+Maumee 66,22.66666667,0.206925,n+p+trace
+Maumee 67,20,0.193575,n+p+trace
+Maumee 68,17.33333333,0.2035875,n+p+trace
+Maumee 69,26,0.126825,chelex
+Maumee 70,20.66666667,0.1335,chelex
+Maumee 71,26.66666667,0.1368375,chelex
+Maumee 72,22,0.1335,chelex
+Maumee Initial,11.33333333,0.0901125,initial
