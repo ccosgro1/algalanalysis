@@ -122,9 +122,9 @@ summary(neAFDMman)
 #p, trace, n:p, p:trace significant 
 
 #CHLA linear model, one way ANOVA and Tukey post hoc
-#replace ChlA=0 with detection limit for 150ml (0.00089)
+#replace ChlA=0 with detection limit for 150ml sample filters and extracted with 15 mLs ethanol (0.001335)
 #log+1 transformation of ChlA
-nerie$ChlA[nerie$ChlA == 0] <-0.00089
+nerie$ChlA[nerie$ChlA == 0] <-0.001335
 nerie$logchla<-log(nerie$ChlA+1)
 neLMchla<-lm(logchla~treatment, data=nerie)
 shapiro.test(resid(neLMchla))
