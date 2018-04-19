@@ -7,15 +7,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-maumee <- read.csv("~/Desktop/maumee.csv")
+maumee <- read.csv("~/Documents/GitHub/algalanalysis/algalcommunityanalysis/Community Analysis/Maumee/maumee.csv")
 library(vegan)
 str(maumee)
 summary(maumee)
 ```
 
 Use the Vegan package
-
-NDMS- how different are communities between treatments? 
 
 Create shannon diversity, richness, and rare species
 ```{r}
@@ -47,12 +45,48 @@ summarystatsShannonRichness<- ddply(maumee, "Treatment", summarize,
                      shannon.mean=mean(shannon), shannon.sd=sd(shannon),
                      shannon.se=sd(shannon)/sqrt(length(shannon)),richness.mean=mean(richness),
                       richness.sd=sd(richness), richness.se=sd(richness)/sqrt(length(richness)))
+
 library(ggplot2)
-ShannonDiversitysummaryplot<-ggplot(summarystatsShannonRichness, aes(Treatment, shannon.mean, fill=Treatment))+ geom_bar(stat='identity',color='black')+geom_errorbar(aes(ymin=shannon.mean-shannon.sd, ymax=shannon.mean+shannon.sd))
+ShannonDiversitysummaryplot<-ggplot(summarystatsShannonRichness, aes(Treatment, shannon.mean, fill=Treatment))+ 
+  geom_bar(stat='identity',color='black')+
+  geom_errorbar(aes(ymin=shannon.mean-shannon.sd, ymax=shannon.mean+shannon.sd))+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))+
+  ggtitle("Maumee Shannon Diversity vs. Treatment")
+
 ShannonDiversitysummaryplot
 
-richnesssummaryplot<-ggplot(summarystatsShannonRichness, aes(Treatment,richness.mean, fill=Treatment))+  geom_bar(stat='identity',color='black')+geom_errorbar(aes(ymin=richness.mean-richness.sd, ymax=richness.mean+richness.sd))
+richnesssummaryplot<-ggplot(summarystatsShannonRichness, aes(Treatment,richness.mean, fill=Treatment))+ 
+  geom_bar(stat='identity',color='black')+geom_errorbar(aes(ymin=richness.mean-richness.sd, ymax=richness.mean+richness.sd))+
+    theme(axis.text.x=element_text(angle = 45, hjust=1))+
+  ggtitle("Maumee Richness vs. Treatment")
 richnesssummaryplot
+
+```
+
+
+NMDS- how different are communities between treatments? 
+#fussy about low numbers. Good at deciphering similar communities.
+#create matrices for the environment and for the species- opposites
+#autotransform is a double sqrt(Wisconsin transformation)- Bray Curtis dissimilarity to decide similarity between observations- regress between points within samples to determine dismilarity- apply transformation then does pairwise comparison to determine similarity metric
+#ordination rules of thumb 2-D- stess should be less than 0.2... if it is ober 0.2 you need to fiddle with the transformation until it works.
+#environm gives centroids, while adonic gives stats
+#perm is the number of permuations.. or times it tries to fit
+```{r}
+speciesm<-maumee[2:37,4:61]
+environm<-maumee[2:37,1:3]
+speciesord<-metaMDS(speciesm,
+             autotransform = T)
+speciesord
+environfit<-envfit(speciesord~Treatment, environm, perm=999)
+summary(environfit)
+environfit
+betad<- betadiver(speciesm, "z")
+adonis(betad~Treatment, environm, perm=999)
+#since this is significant, we need to do a pairwise comparison of each treatment- subset treatments and comapre
+#add in pal to color code treatments.
+plot(speciesord, disp='species', type='n', bg=pal[Treatment])
+with(environm, points(speciesord, display='species', col='black'))
+plot(environfit, col='green')
 
 ```
 
