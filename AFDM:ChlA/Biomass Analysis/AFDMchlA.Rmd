@@ -135,6 +135,7 @@ summary(neLMchla)
 neaovchla<-aov(neLMchla)
 summary(neaovchla)
 TukeyHSD(neaovchla)
+
 #CHLA MANOVA
 neCHLAman<-aov(logchla~nitrogen*phosphorus*trace, data=nerie)
 shapiro.test(resid(neCHLAman))
