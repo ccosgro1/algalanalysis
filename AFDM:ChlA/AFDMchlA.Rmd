@@ -1,0 +1,182 @@
+---
+title: "AFDM/Chl-a"
+author: "Jordyn Stoll"
+date: "April 9, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+setwd("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Biomass Analysis/")
+Compiled.Meso.Data <-read.csv("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Compiled Meso Data.csv")
+summary(Compiled.Meso.Data)
+str(Compiled.Meso.Data)
+#get rid of chelex and intial treatments
+simplified<-Compiled.Meso.Data[which(Compiled.Meso.Data$treatment!='chelex'& Compiled.Meso.Data$treatment!='initial'),]
+#subset each site by finding the 'string' in the sample ID
+ford<-subset(simplified,grepl('Ford', simplified$sampleID))
+greenbay<-subset(simplified,grepl('GB',simplified$sampleID))
+nerie<-subset(simplified, grepl('NE',simplified$sampleID))
+maumee<-subset(simplified,grepl('Maumee',simplified$sampleID))
+
+```
+
+##FORD
+```{r}
+#AFDM linear model,one way ANOVA and Tukey post hoc
+fordLM<-lm(AFDM~treatment, data=ford)
+shapiro.test(resid(fordLM))
+par(mfrow=c(1,2))
+plot(fordLM,which=c(1,2))
+summary(fordLM)
+fordaov<-aov(fordLM)
+summary(fordaov)
+TukeyHSD(fordaov)
+
+#AFDM MANOVA
+fordAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=ford)
+shapiro.test(resid(fordAFDMman))
+plot(fordAFDMman,which=c(1,2))
+#shapiro wilk 0.06929...transform?
+summary(fordAFDMman)
+##trace and p significant
+
+#CHLA linear model, one way ANOVA and Tukey post hoc
+#log+1 transform chla data and replace ChlA = 0 with detection limit for 150ml (0.00089)
+ford$ChlA[ford$ChlA == 0] <-0.00089
+ford$logchla<-log(ford$ChlA+1)
+fordLMchla<-lm(logchla~treatment, data=ford)
+shapiro.test(resid(fordLMchla))
+par(mfrow=c(1,2))
+plot(fordLMchla,which=c(1,2))
+#log+1 transformation is still not normally distributed
+summary(fordLMchla)
+fordaovchla<-aov(fordLMchla)
+summary(fordaovchla)
+TukeyHSD(fordaovchla)
+
+#CHLA MANOVA
+fordCHLAman<-aov(logchla~nitrogen*phosphorus*trace, data=ford)
+shapiro.test(resid(fordCHLAman))
+plot(fordCHLAman,which=c(1,2))
+
+```
+
+##GREENBAY
+```{r}
+#AFDM linear model, one way ANOVA and Tukey post hoc
+gbLM<-lm(AFDM~treatment, data=greenbay)
+shapiro.test(resid(gbLM))
+par(mfrow=c(1,2))
+plot(gbLM,which=c(1,2))
+summary(gbLM)
+gbaov<-aov(gbLM)
+summary(gbaov)
+TukeyHSD(gbaov)
+
+#AFDM MANOVA
+gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay)
+shapiro.test(resid(gbAFDMman))
+plot(gbAFDMman,which=c(1,2))
+summary(gbAFDMman)
+#p:n significant, p and p:trace almost significant 
+
+#CHLA linear model, one way ANOVA and Tukey post hoc
+#log+1 transformation of ChlA
+greenbay$logchla<-log(greenbay$ChlA +1)
+gbLMchla<-lm(logchla~treatment, data=greenbay)
+shapiro.test(resid(gbLMchla))
+par(mfrow=c(1,2))
+plot(gbLMchla,which=c(1,2))
+#better, still needs transformed
+summary(gbLMchla)
+gbaovchla<-aov(gbLMchla)
+summary(gbaovchla)
+TukeyHSD(gbaovchla)
+
+#CHLA MANOVA
+gbCHLAman<-aov(logchla~nitrogen*phosphorus*trace, data=greenbay)
+shapiro.test(resid(gbCHLAman))
+plot(gbCHLAman,which=c(1,2))
+summary(gbCHLAman)
+#needs transformed before conclusions..
+```
+
+
+##NORTH ERIE
+```{r}
+#AFDM linear model, one way ANOVA and Tukey post hoc
+neLM<-lm(AFDM~treatment, data=nerie)
+shapiro.test(resid(gbLM))
+par(mfrow=c(1,2))
+plot(neLM,which=c(1,2))
+summary(neLM)
+neaov<-aov(neLM)
+summary(neaov)
+TukeyHSD(neaov)
+
+#AFDM MANOVA
+neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie)
+shapiro.test(resid(neAFDMman))
+plot(neAFDMman,which=c(1,2))
+summary(neAFDMman)
+#p, trace, n:p, p:trace significant 
+
+#CHLA linear model, one way ANOVA and Tukey post hoc
+#replace ChlA=0 with detection limit for 150ml (0.00089)
+#log+1 transformation of ChlA
+nerie$ChlA[nerie$ChlA == 0] <-0.00089
+nerie$logchla<-log(nerie$ChlA+1)
+neLMchla<-lm(logchla~treatment, data=nerie)
+shapiro.test(resid(neLMchla))
+par(mfrow=c(1,2))
+plot(neLMchla,which=c(1,2))
+#needs transformed still......
+summary(neLMchla)
+neaovchla<-aov(neLMchla)
+summary(neaovchla)
+TukeyHSD(neaovchla)
+
+#CHLA MANOVA
+neCHLAman<-aov(logchla~nitrogen*phosphorus*trace, data=nerie)
+shapiro.test(resid(neCHLAman))
+plot(neCHLAman,which=c(1,2))
+summary(neCHLAman)
+#needs transformed before conclusions,,
+```
+
+##MAUMEE
+```{r}
+#AFDM linear model, one way ANOVA and Tukey post hoc
+maumeeLM<-lm(AFDM~treatment, data=maumee)
+shapiro.test(resid(maumeeLM))
+par(mfrow=c(1,2))
+plot(maumeeLM,which=c(1,2))
+summary(maumeeLM)
+maumeeaov<-aov(maumeeLM)
+summary(maumeeaov)
+TukeyHSD(maumeeaov)
+
+#AFDM MANOVA
+mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee)
+shapiro.test(resid(mAFDMman))
+plot(mAFDMman,which=c(1,2))
+summary(mAFDMman)
+#p, p:trace significant
+
+#CHLA linear model, one way ANOVA and Tukey post hoc
+maumeeLMchla<-lm(ChlA~treatment, data=maumee)
+shapiro.test(resid(maumeeLMchla))
+par(mfrow=c(1,2))
+plot(maumeeLMchla,which=c(1,2))
+summary(maumeeLMchla)
+maumeeaovchla<-aov(maumeeLMchla)
+summary(maumeeaovchla)
+TukeyHSD(maumeeaovchla)
+
+#CHLA MANOVA
+mCHLAman<-aov(ChlA~nitrogen*phosphorus*trace, data=maumee)
+shapiro.test(resid(mCHLAman))
+plot(mCHLAman,which=c(1,2))
+summary(mCHLAman)
+#n, p significant, n:trace almost significant
+```
