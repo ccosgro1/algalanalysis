@@ -1,0 +1,65 @@
+---
+title: "Biostats Project"
+author: "Jordyn Stoll"
+date: "April 24, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Biomass Analysis/")
+Compiled.Meso.Data <-read.csv("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Compiled Meso Data.csv")
+summary(Compiled.Meso.Data)
+str(Compiled.Meso.Data)
+#get rid of chelex and intial treatments
+simplified<-Compiled.Meso.Data[which(Compiled.Meso.Data$treatment!='chelex'& Compiled.Meso.Data$treatment!='initial'),]
+#subset each site by finding the 'string' in the sample ID
+ford1<-subset(simplified,grepl('Ford', simplified$sampleID))
+greenbay1<-subset(simplified,grepl('GB',simplified$sampleID))
+nerie1<-subset(simplified, grepl('NE',simplified$sampleID))
+maumee1<-subset(simplified,grepl('Maumee',simplified$sampleID))
+```
+##FORD
+```{r}
+#AFDM MANOVA
+fordAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=ford1)
+shapiro.test(resid(fordAFDMman))
+par(mfrow=c(1,2))
+plot(fordAFDMman,which=c(1,2))
+summary(fordAFDMman)
+##trace and p significant
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+plot(AFDM~treatment,data=ford1,
+     main="Ford AFDM per Treatment",
+     ylab="AFDM mg/L",
+     xlab="", las=2)
+```
+#GREENBAY
+```{r}
+#AFDM MANOVA
+gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay)
+shapiro.test(resid(gbAFDMman))
+plot(gbAFDMman,which=c(1,2))
+summary(gbAFDMman)
+#p:n significant, p and p:trace almost significant 
+```
+##NORTH ERIE
+```{r}
+#AFDM MANOVA
+neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie)
+shapiro.test(resid(neAFDMman))
+plot(neAFDMman,which=c(1,2))
+summary(neAFDMman)
+#p, trace, n:p, p:trace significant 
+```
+##MAUMEE
+```{r}
+#AFDM MANOVA
+mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee)
+shapiro.test(resid(mAFDMman))
+plot(mAFDMman,which=c(1,2))
+summary(mAFDMman)
+#p, p:trace significant
+```
+

@@ -36,7 +36,6 @@ TukeyHSD(fordaov)
 fordAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=ford)
 shapiro.test(resid(fordAFDMman))
 plot(fordAFDMman,which=c(1,2))
-#shapiro wilk 0.06929...transform?
 summary(fordAFDMman)
 ##trace and p significant
 
