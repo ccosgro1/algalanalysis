@@ -30,36 +30,58 @@ summary(fordAFDMman)
 ##trace and p significant
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
+ford1$treatment<-ford1$treatment[,drop=T]
 plot(AFDM~treatment,data=ford1,
-     main="Ford AFDM per Treatment",
+     main="Treatment Effect on AFDM: Ford River",
      ylab="AFDM mg/L",
      xlab="", las=2)
+
+summary(ford1$treatment)
+###how do I get rid of initial and chelex labels.. they aren't treatments in ford1... 
 ```
 #GREENBAY
 ```{r}
 #AFDM MANOVA
-gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay)
+gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay1)
 shapiro.test(resid(gbAFDMman))
 plot(gbAFDMman,which=c(1,2))
 summary(gbAFDMman)
 #p:n significant, p and p:trace almost significant 
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+plot(AFDM~treatment,data=greenbay1,
+     main="Greenbay AFDM per Treatment",
+     ylab="AFDM mg/L",
+     xlab="", las=2)
 ```
 ##NORTH ERIE
 ```{r}
 #AFDM MANOVA
-neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie)
+neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie1)
 shapiro.test(resid(neAFDMman))
 plot(neAFDMman,which=c(1,2))
 summary(neAFDMman)
 #p, trace, n:p, p:trace significant 
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+plot(AFDM~treatment,data=nerie1,
+     main="North Erie AFDM per Treatment",
+     ylab="AFDM mg/L",
+     xlab="", las=2)
 ```
 ##MAUMEE
 ```{r}
 #AFDM MANOVA
-mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee)
+mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee1)
 shapiro.test(resid(mAFDMman))
 plot(mAFDMman,which=c(1,2))
 summary(mAFDMman)
 #p, p:trace significant
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+plot(AFDM~treatment,data=maumee1,
+     main="Maumee AFDM per Treatment",
+     ylab="AFDM mg/L",
+     xlab="", las=2)
 ```
 
