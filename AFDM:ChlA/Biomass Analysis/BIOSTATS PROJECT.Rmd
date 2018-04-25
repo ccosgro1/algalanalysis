@@ -33,11 +33,8 @@ par(mfrow=c(1,1))
 ford1$treatment<-ford1$treatment[,drop=T]
 plot(AFDM~treatment,data=ford1,
      main="Treatment Effect on AFDM: Ford River",
-     ylab="AFDM mg/L",
+     ylab="AFDM (mg/L)",
      xlab="", las=2)
-
-summary(ford1$treatment)
-###how do I get rid of initial and chelex labels.. they aren't treatments in ford1... 
 ```
 #GREENBAY
 ```{r}
@@ -49,9 +46,10 @@ summary(gbAFDMman)
 #p:n significant, p and p:trace almost significant 
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
+greenbay1$treatment<-greenbay1$treatment[,drop=T]
 plot(AFDM~treatment,data=greenbay1,
-     main="Greenbay AFDM per Treatment",
-     ylab="AFDM mg/L",
+     main="Treatment Effect on AFDM: Green Bay",
+     ylab="AFDM (mg/L)",
      xlab="", las=2)
 ```
 ##NORTH ERIE
@@ -64,9 +62,10 @@ summary(neAFDMman)
 #p, trace, n:p, p:trace significant 
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
+nerie1$treatment<-nerie1$treatment[,drop=T]
 plot(AFDM~treatment,data=nerie1,
-     main="North Erie AFDM per Treatment",
-     ylab="AFDM mg/L",
+     main="Treatment Effect on AFDM: North Erie",
+     ylab="AFDM (mg/L)",
      xlab="", las=2)
 ```
 ##MAUMEE
@@ -79,9 +78,10 @@ summary(mAFDMman)
 #p, p:trace significant
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
+maumee1$treatment<-maumee1$treatment[,drop=T]
 plot(AFDM~treatment,data=maumee1,
-     main="Maumee AFDM per Treatment",
-     ylab="AFDM mg/L",
+     main="Treatment Effect on AFDM: Maumee River",
+     ylab="AFDM (mg/L)",
      xlab="", las=2)
 ```
 
