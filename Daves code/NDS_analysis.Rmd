@@ -1,0 +1,570 @@
+---
+title: "NDS USGS/KSU HABS 2017"
+author: "Dave Costello"
+date: "10/2/2017"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("/Users/dcostel3/Dropbox/ASAP/2017 USGS/algalanalysis/Daves code/")
+#setwd("C:/Users/dcostel3/Dropbox/ASAP/2017 USGS/algalanalysis/Daves code/")
+
+options(device=quartz)
+library(nlme)
+library(lme4)
+library(MuMIn)
+```
+
+```{r log response ratio function for chlorophyll a}
+logRR <- function(dataset){
+  dataset$TRT <- dataset$TRT[drop=T]
+  trt <- levels(dataset$TRT)
+  trt.no <- length(trt)-1
+  means <- with(dataset,tapply(CHLA,TRT,mean,na.rm=T))
+  sds <- with(dataset,tapply(CHLA,TRT,sd,na.rm=T))
+  ns <- with(dataset,tapply(CHLA,TRT,length))
+  logRR <- vector(length=trt.no)
+  seRR <- vector(length=trt.no)
+  
+  for(i in 1:trt.no){
+    logRR[i] <- round(log(means[i+1])-log(means[1]),3)
+    sp2 <- (((ns[1]-1)*sds[1]^2+(ns[i+1]-1)*sds[i+1]^2)/(ns[1]+ns[i+1]-2))
+    seRR[i] <- round(sqrt(sp2*(1/(means[1]^2*ns[1])+1/(means[i+1]^2*ns[i+1]))),3)
+    
+  }
+  res <- data.frame(trt[-1],logRR,seRR,row.names=NULL)
+  colnames(res)<-c("Treatment","logRR","seRR")
+  return(res)
+}
+
+```
+
+
+```{r import data}
+NDS <- read.csv(file="NDS_chla.csv")
+NDS$TRT <- factor(NDS$TRT,levels=c("Control","NH4","PO4","Fe","Zn","Ni&Mo",
+                                   "N&Zn","N&Fe","P&Ni&Mo","N&P"))
+NDS$N <- factor(NDS$N,levels=c("noN","NH4"))
+NDS$Trace <- factor(NDS$Trace,levels=c("noT","Fe","NiMo","Zn"))
+
+MC <- read.csv(file="NDS_MC.csv")
+MC$TRT <- factor(MC$TRT,levels=c("Control","NH4","PO4","Fe","Zn","Ni&Mo",
+                                   "N&Zn","N&Fe","P&Ni&Mo","N&P"))
+MC$N <- factor(MC$N,levels=c("noN","NH4"))
+MC$Trace <- factor(MC$Trace,levels=c("noT","Fe","NiMo","Zn"))
+summary(MC)
+
+#Separate by sites and calculate log response ratios
+OWC <- subset(NDS,NDS$SITE=="OLD WOMAN 1")
+SAN <- subset(NDS,NDS$SITE=="SANDUSKY 1")
+MA1 <- subset(NDS,NDS$SITE=="MAUMEE 1")
+MA2 <- subset(NDS,NDS$SITE=="MAUMEE 2")
+NE1 <- subset(NDS,NDS$SITE=="N ERIE 1")
+NE2 <- subset(NDS,NDS$SITE=="N ERIE 2")
+FD1 <- subset(NDS,NDS$SITE=="FORD 1")
+FD2 <- subset(NDS,NDS$SITE=="FORD 2")
+GB <- subset(NDS,NDS$SITE=="GREEN BAY 1")
+FOX <- subset(NDS,NDS$SITE=="FOX 1")
+
+#Outliers - check raw data
+NE2[NE2$AFDM>2,'AFDM'] <-NA
+#Negative CHLA in SAN CTRL
+```
+
+```{r calc. log RR}
+OWCRR <- logRR(OWC)
+SANRR <- logRR(SAN)
+MA1RR <- logRR(MA1)
+MA2RR <- logRR(MA2)
+NE1RR <- logRR(NE1)
+NE2RR <- logRR(NE2)
+FD1RR <- logRR(FD1)
+FD2RR <- logRR(FD2)
+GBRR <- logRR(GB)
+FOXRR <- logRR(FOX)
+ALLRR <- logRR(NDS)
+```
+
+
+```{r exploratory plots}
+plot(CHLA~TRT,data=NDS,las=2)
+plot(CHLA~SITE,data=NDS,las=2,xlab="",ylab="Chla (mg/m2)")
+plot(CHLA~TRT,data=FD2)
+
+site="FOX 1"
+plot(CHLA~TRT,ylab="Chla (mg/m2)",las=2,data=NDS[NDS$SITE==site,],
+     ylim=c(0,300),main=site,xlab="")
+
+#Log RR plots
+#Old Woman
+xloc <- with(OWCRR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Old Woman"))
+with(OWCRR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Sandusky
+xloc <- with(SANRR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Sandusky"))
+with(SANRR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Maumee 1
+xloc <- with(MA1RR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Maumee 1"))
+with(MA1RR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Maumee 2
+xloc <- with(MA2RR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Maumee 2"))
+with(MA2RR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#N. Erie 1
+xloc <- with(NE1RR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="N. Erie 1"))
+with(NE1RR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#N. Erie 2
+xloc <- with(NE2RR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="N. Erie 2"))
+with(NE2RR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Ford 1
+xloc <- with(FD1RR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Ford 1"))
+with(FD1RR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Ford 2
+xloc <- with(FD2RR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Ford 2"))
+with(FD2RR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Green Bay
+xloc <- with(GBRR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Green Bay"))
+with(GBRR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#Fox
+xloc <- with(FOXRR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="Fox"))
+with(FOXRR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+#ALL
+xloc <- with(ALLRR,
+             barplot(logRR,names.arg=Treatment,las=2,ylim=c(-1,3),
+             ylab="log response ratio (Treatment/Control)",
+             main="ALL"))
+with(ALLRR,
+     arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+abline(h=c(-0.385,0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+```
+
+```{r presentation plots}
+MA2RR<-MA2RR[c(1,2,9,3,4,5,6,7,8),]
+NE1RR<-NE1RR[c(1,2,9,3,4,5,6,7,8),]
+
+cs <- c("orangered3","seagreen4","black","sienna2","orchid4","lightcoral",
+        "chocolate4","purple4","coral3")
+
+
+
+par(pin=c(3,2))
+xloc <- barplot(MA2RR$logRR,las=1,ylim=c(-1,1),ylab="ln(Treatment/Control)",xaxt="n",border=NA,col=cs)
+with(MA2RR,arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+mtext(MA2RR$Treatment,side=1,at=xloc,las=2,line=1)
+abline(h=c(0.385,-0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+xloc <- barplot(NE1RR$logRR,las=1,ylim=c(-1,2),ylab="ln(Treatment/Control)",xaxt="n",border=NA,col=cs)
+with(NE1RR,arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+mtext(NE1RR$Treatment,side=1,at=xloc,las=2,line=1)
+abline(h=c(0.385,-0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+```
+
+###Site maps
+
+```{r site maps}
+library(maps)
+library(mapdata)
+lkNDS <- read.csv(file="lakeNDSsites.csv")
+
+#BIG MAP
+pdf(file="fullmap.pdf",height=4,width=4)
+
+map("worldHires","US",xlim=c(-89,-81),ylim=c(41,47),col="white")
+map("state",c("michigan","ohio","indiana","pennsylvania","illinois","west virginia","wisconsin"),add=T,col="grey90",fill=T)
+map("worldHires","Canada",add=T,col="grey90",fill=T)
+rect(-83.7,41.2,-82.2,42.2,lwd=1.2,border="red")
+rect(-88.3,44.4,-86.5,45.9,lwd=1.2,border="red")
+text(-83.7,42.2,labels="6",adj=c(-0.5,1.5),col="red",cex=0.5)
+text(-88.3,45.9,labels="4",adj=c(-5,1.5),col="red",cex=0.5)
+points(lkNDS$Long,lkNDS$Lat,cex=0.5,pch=16,col="red")
+box()
+
+dev.off()
+
+#LAKE ERIE MAP
+pdf(file="OHmap.pdf",height=4,width=4)
+
+map("state","ohio",xlim=c(-83.7,-82.2),ylim=c(41.2,42.2),col="grey90",fill=T)
+map("state","michigan",xlim=c(-86,-80),ylim=c(40,45),add=T,col="grey90",fill=T)
+map("worldHires","Canada",xlim=c(-86,-80),ylim=c(40,45),add=T,col="grey90",fill=T)
+box()
+points(lkNDS$Long,lkNDS$Lat,cex=1,col="red")
+points(Lat~Long,data=lkNDS[lkNDS$Incub==T,],pch=16,col="red",cex=1)
+points(Lat~Long,data=lkNDS[lkNDS$Incub==T,],pch=1,col="black",cex=1)
+
+#State names
+text(-83.2,41.5,"OHIO")
+text(-83.45,42.05,"MICHIGAN")
+text(-82.7,42.1,"ONTARIO")
+
+#Site names
+text(-82.6,41.5,"Sandusky",cex=0.5)
+text(-83.3,41.75,"Maumee",cex=0.5)
+text(-83.1,41.9,"N. Erie",cex=0.5)
+text(-82.35,41.35,"Old Woman",cex=0.5)
+
+dev.off()
+
+#LAKE MICHIGAN MAP
+pdf(file="WImap.pdf",height=4,width=3.5)
+
+map("state","wisconsin",xlim=c(-88.3,-86.5),ylim=c(44.4,45.9),col="grey90",fill=T)
+map("state","michigan",xlim=c(-88.3,-86.5),ylim=c(44.4,45.9),col="grey90",fill=T,add=T)
+box()
+
+points(lkNDS$Long,lkNDS$Lat,cex=1,col="red")
+points(Lat~Long,data=lkNDS[lkNDS$Incub==T,],pch=16,col="red",cex=1)
+points(Lat~Long,data=lkNDS[lkNDS$Incub==T,],pch=1,col="black",cex=1)
+
+#State names
+text(-87.5,45.8,"MICHIGAN")
+text(-88,45,"WISC.")
+
+#Site names
+text(-87.9,44.7,"Green Bay/Fox",cex=0.5)
+text(-87.0,45.65,"Ford",cex=0.5)
+
+dev.off()
+```
+
+```{r River map}
+#DEFINE URL
+# - this is the location of the file
+url.river_data <- url("http://sharpsightlabs.com/wp-content/datasets/usa_rivers.RData")
+
+
+# LOAD DATA
+# - this will retrieve the data from the URL
+load(url.river_data)
+
+lines.rivers <- subset(lines.rivers, !(FEATURE %in% c("Shoreline"
+                                                      ,"Shoreline Intermittent"
+                                                      ,"Null"
+                                                      ,"Closure Line"
+                                                      ,"Apparent Limit"
+                                                      )))
+OHrivers <- subset(lines.rivers, (STATE %in% 'OH'))
+MIrivers <- subset(lines.rivers, (STATE %in% 'MI'))
+
+
+map("worldHires","US",xlim=c(-90,-80),ylim=c(40,48),col="white")
+map("state",c("michigan","ohio","indiana","pennsylvania","illinois","west virginia","wisconsin"),add=T,col="grey90",fill=T)
+map("worldHires","Canada",add=T,col="grey90",fill=T)
+
+stNDS <- read.csv(file="streamNDSsites.csv")
+points(-87.8,46.9,pch=22,cex=4,col="red")
+points(-81.5,41.3,pch=22,cex=5,col="red")
+points(stNDS$Long,stNDS$Lat,cex=1.2,col="red",pch=16)
+
+map("state","ohio",xlim=c(-82,-81),ylim=c(41,42),fill=T,col="grey90")
+plot(OHrivers,add=T)
+points(stNDS$Long,stNDS$Lat,cex=1.2,col="red",pch=16)
+
+map("state","michigan",xlim=c(-88,-87.75),ylim=c(46.7,47),fill=T,col="grey90")
+plot(MIrivers,add=T)
+points(stNDS$Long,stNDS$Lat,cex=1.2,col="red",pch=16)
+
+```
+
+##Linear models
+Because the treatments are not fully crossed, design is non-orthogonal. Need to look at lm output not aov output for interpretation.
+
+###Old Woman Creek
+```{r OWC stats}
+plot(CHLA~TRT,data=OWC,las=2)
+OWC.ch <- lm(CHLA~N*P*Trace,data=OWC)
+summary(OWC.ch)
+plot(OWC.ch,which=1)
+shapiro.test(resid(OWC.ch))
+
+plot(AFDM~TRT,data=OWC,las=3)
+OWC.dm <- lm(AFDM~N*P*Trace,data=OWC)
+summary(OWC.dm)
+shapiro.test(resid(OWC.dm))
+plot(OWC.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="OLD WOMAN 1",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+N and P colimited (Chla) and N limited (AFDM). MC was only observed in 1 rep of N&P.
+
+###Sandusky
+```{r Sandusky stats}
+plot(CHLA~TRT,data=SAN,las=2)
+SAN.ch <- lm(CHLA~N*P*Trace,data=SAN)
+summary(SAN.ch)
+shapiro.test(resid(SAN.ch))
+plot(SAN.ch,which=1)
+
+plot(AFDM~TRT,data=SAN,las=2)
+SAN.dm <- lm(AFDM~N*P*Trace,data=SAN)
+summary(SAN.dm)
+shapiro.test(resid(SAN.dm))
+plot(SAN.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="SANDUSKY 1",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+Strong P limitation, weak secondary N and Fe (Chla). No limitation for AFDM. AFDM in Sandusky was very high across the board, so nutrients just seemed to shift the autotrophic index to more chla rich biomass. Higher MC in Zn-only treatment and P+Ni+Mo(1 rep).
+
+
+###North Erie 1
+```{r N Erie 1 stats}
+plot(CHLA~TRT,data=NE1,las=2)
+NE1.ch <- lm(CHLA~N*P*Trace,data=NE1)
+summary(NE1.ch)
+shapiro.test(resid(NE1.ch))
+plot(NE1.ch,which=1)
+
+plot(AFDM~TRT,data=NE1,las=2)
+NE1.dm <- lm(AFDM~N*P*Trace,data=NE1)
+summary(NE1.dm)
+shapiro.test(resid(NE1.dm))
+plot(NE1.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="N. ERIE 1",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+Strong P effect (chla) and slight inhibition with N alone (AFDM) but the inhibition goes away when interactions are removed. No difference in AFDM. MC was observed in Fe (1 rep) and N&P (1 rep) treatments.
+
+###North Erie 2
+```{r N Erie 2 stats}
+plot(CHLA~TRT,data=NE2,las=2)
+NE2.ch <- lm(CHLA~N*P*Trace,data=NE2)
+summary(NE2.ch)
+shapiro.test(resid(NE2.ch))
+plot(NE2.ch,which=1)
+
+plot(AFDM~TRT,data=NE2,las=2)
+NE2.dm <- lm(AFDM~N*P*Trace,data=NE2)
+summary(NE2.dm)
+shapiro.test(resid(NE2.dm))
+plot(NE2.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="N. ERIE 2",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+No limitation. Very low biomass overall. Messy MC data, but some evidence of increase in NH4, N&Fe (1 rep), and P&Ni&Mo.
+
+###Maumee
+```{r Maumee grouped stats}
+#Make a grouped Mamuee response
+MAU <- rbind(MA1,MA2)
+
+plot(CHLA~TRT,data=MAU,las=2,log="y")
+MAU.ch <- lm(log(CHLA)~N*P*Trace,data=MAU)
+summary(MAU.ch)
+shapiro.test(resid(MAU.ch))
+plot(MAU.ch,which=1)
+
+plot(AFDM~TRT,data=MAU,las=2)
+MAU.dm <- lm(AFDM~N*P*Trace,data=MAU)
+summary(MAU.dm)
+shapiro.test(resid(MAU.dm))
+plot(MAU.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="MAUMEE 2",],las=2,xaxt="n",xlab="",ylim=c(0,0.12))
+points(MC~as.numeric(TRT),data=MC[MC$SITE=="MAUMEE 1",],pch=16)
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+
+MAUMC <- subset(MC,SITE=="MAUMEE 2"|SITE=="MAUMEE 1")
+MAU.mc <- lm(log(MC)~N*P*Trace,data=MAUMC)
+summary(MAU.mc)
+plot(MAU.mc)
+```
+
+Patterns are not statistically strong, but evidence that "single" element additions (N, P, Ni+Mo) reduce chla relative to control but mixtures of elements (P+Ni+Mo) can sustain chla. For AFDM P and Fe alone reduce biomass and N+Fe sustains it. MC data is messy but Zn seems to stimulate MC production. Also increase in P+Ni+Mo.
+
+###Ford 1
+```{r Ford 1}
+plot(CHLA~TRT,data=FD1,las=2)
+FD1.ch <- lm(CHLA~N*P*Trace,data=FD1)
+summary(FD1.ch)
+shapiro.test(resid(FD1.ch))
+plot(FD1.ch,which=1)
+
+plot(AFDM~TRT,data=FD1,las=2)
+FD1.dm <- lm(AFDM~N*P*Trace,data=FD1)
+summary(FD1.dm)
+shapiro.test(resid(FD1.dm))
+plot(FD1.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="FORD 1",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+Strong N:P co-limitation (chla). No response in AFDM. One rep of P+Ni+Mo produced microcystin.
+
+
+###Ford 2
+```{r Ford 2}
+plot(CHLA~TRT,data=FD2,las=2,log="y")
+FD2.ch <- lm(log(CHLA)~N*P*Trace,data=FD2)
+summary(FD2.ch)
+shapiro.test(resid(FD2.ch))
+plot(FD2.ch,which=1)
+
+plot(AFDM~TRT,data=FD2,las=2)
+FD2.dm <- lm(AFDM~N*P*Trace,data=FD2)
+summary(FD2.dm)
+shapiro.test(resid(FD2.dm))
+plot(FD2.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="FORD 2",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+Strong P limitation (chla). No response in AFDM. One rep each of P+Ni+Mo, N, and P produced microcystin.
+
+###Fox River
+```{r Fox}
+plot(CHLA~TRT,data=FOX,las=2)
+FOX.ch <- lm(CHLA~N*P*Trace,data=FOX)
+summary(FOX.ch)
+shapiro.test(resid(FOX.ch))
+plot(FOX.ch,which=1)
+
+plot(AFDM~TRT,data=FOX,las=2)
+FOX.dm <- lm(AFDM~N*P*Trace,data=FOX)
+summary(FOX.dm)
+shapiro.test(resid(FOX.dm))
+plot(FOX.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="FOX 1",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+Strong P limitation (chla). No response in AFDM. MC doesn't show any strong patterns (relatively high ctrls).
+
+
+###Green Bay
+```{r Green Bay}
+plot(CHLA~TRT,data=GB,las=2)
+GB.ch <- lm(CHLA~N*P*Trace,data=GB)
+summary(GB.ch)
+shapiro.test(resid(GB.ch))
+plot(GB.ch,which=1)
+
+plot(AFDM~TRT,data=GB,las=2)
+GB.dm <- lm(AFDM~N*P*Trace,data=GB)
+summary(GB.dm)
+shapiro.test(resid(GB.dm))
+plot(GB.dm,which=1)
+
+plot(MC~as.numeric(TRT),data=MC[MC$SITE=="GREEN BAY 1",],las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+```
+
+Zn limitation of AFDM but additional N counteracted that increase. Patterns are the same in chla but not significant. MC was stimulated in one rep each by Ni+Mo, P+Ni+Mo, N+Zn, N+Fe.
+
+
+###MC across all sites
+```{r MC data}
+library(lme4)
+
+MC[MC$SITE=="MAUMEE 1",'SITE'] <- "MAUMEE 2"
+plot(MC~as.numeric(TRT),data=MC,xaxt="n",xlab="",log="y")
+axis(1,at=seq(1,10),labels=levels(MC$TRT),las=2)
+
+MCmod <- lmer(log(MC)~N+P+Trace+N:P+N:Trace+P:Trace+(1|SITE),
+              data=MC,na.action=na.omit)
+summary(MCmod)
+plot(MCmod)
+
+MCmod2 <- update(MCmod,.~.-P:Trace)
+anova(MCmod2,MCmod)
+
+MCmod3 <- update(MCmod,.~.-N:Trace)
+anova(MCmod3,MCmod)
+
+MCmod4 <- update(MCmod3,.~.-N:P)
+anova(MCmod4,MCmod3)
+
+MCmod5 <- update(MCmod4,.~.-N)
+anova(MCmod5,MCmod4)
+
+summary(MCmod5)
+r.squaredGLMM(MCmod5)
+```
+
+Over every all sites, P+Ni+Mo is the only combination that significantly increases MC above controls (p = 0.002). Fixed factors explain 1.4% of variation and random effect explains 80% of variation.

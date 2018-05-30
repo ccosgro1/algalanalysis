@@ -11,9 +11,12 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 
 setwd("~/Dropbox/ASAP/2017 USGS/Data analysis")
-setwd("C:/Users/dcostel3/Dropbox/ASAP/2017 USGS/Data analysis")
+setwd("C:/Users/dcostel3/Dropbox/ASAP/2017 USGS/algalanalysis/Daves code/")
 
 options(device=quartz)
+
+library(lme4)
+library(MuMIn)
 ```
 
 ##Function for calculating log response ratios from incubator experiment
@@ -50,6 +53,9 @@ inc <- read.csv("HAB2017_incub.csv")
 
 #Resorts the treatments to a better order
 inc$Treatment <- factor(inc$Treatment,levels=c("Initial","Control","NH4","PO4","Trace","N+P","N+trace","P+trace","N+P+trace","Chelex"))
+inc$Nit <- factor(inc$Nit,levels=c("NoN","NH4"))
+inc$Pho <- factor(inc$Pho,levels=c("NoP","PO4"))
+inc$Trace <- factor(inc$Trace,levels=c("NoT","Trace"))
 
 #Chelex treatments had +10 mg/treatment. Correct all values by -20 mg/L
 inc[inc$Treatment=="Chelex",]$Dry_mass <- inc[inc$Treatment=="Chelex",]$Dry_mass-20
@@ -71,17 +77,21 @@ Ford <- subset(inc2,inc2$Site=="Ford")
 GB <- subset(inc2,inc2$Site=="GB")
 NEr <- subset(inc2,inc2$Site=="NErie")
 Mau <- subset(inc2,inc2$Site=="Maumee")
+
+Inc.trim <- subset(inc2,inc2$Treatment!="Initial"&inc2$Treatment!="Chelex")
+Inc.trim$Treatment <- factor(Inc.trim$Treatment)[drop=T,]
+
+Ford.trim <- subset(Inc.trim,Site=="Ford")
+Mau.trim <- subset(Inc.trim,Site=="Maumee")
+NEr.trim <- subset(Inc.trim,Site=="NErie")
+GB.trim <- subset(Inc.trim,Site=="GB")
+
 ```
 
 ##Calculate log response ratios
 ```{r}
-Ford.trim <- subset(Ford,Ford$Treatment!="Initial")
 FordRR <- logRR(Ford.trim)
-
-Mau.trim <- subset(Mau,Mau$Treatment!="Initial")
 MauRR <- logRR(Mau.trim)
-
-NEr.trim <- subset(NEr,NEr$Treatment!="Initial")
 NErRR <- logRR(NEr.trim)
 ```
 
@@ -179,3 +189,126 @@ legend("top","N. Erie",bty="n",cex=1.4)
 abline(h=0.1*60,col="red",lty=2)
 ```
 
+##Incubator stats
+###Maumee
+```{r Maumee}
+plot(Chla~Treatment,data=Mau,las=2)
+MI.ch <- aov(Chla~Nit*Pho*Trace,data=Mau.trim)
+summary(MI.ch)
+summary(aov(Chla~Nit+Pho+Trace+Nit:Trace,data=Mau.trim))
+shapiro.test(resid(MI.ch))
+plot(MI.ch,which=1)
+
+plot(AFDM~Treatment,data=Mau,las=2)
+MI.dm <- aov(AFDM~Nit*Pho*Trace,data=Mau.trim)
+summary(MI.dm)
+summary.lm(MI.dm)
+shapiro.test(resid(MI.dm))
+plot(MI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=Mau.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(Mau.trim$Treatment),las=2)
+```
+
+Chla was limited by N and P and weakly by N+trace (p = 0.075). AFDM also responded to P but with a negative interaction between P+trace. Microcystin was elevated in N+trace and less so in N+P+trace.
+
+###North Erie
+Should do a log transformation but there are some neg values.
+```{r N. Erie}
+plot(Chla~Treatment,data=NEr,las=2)
+NI.ch <- aov(Chla~Nit*Pho*Trace,data=NEr.trim)
+summary(NI.ch)
+shapiro.test(resid(NI.ch))
+plot(NI.ch,which=1)
+
+plot(AFDM~Treatment,data=NEr,las=2)
+NI.dm <- aov(AFDM~Nit*Pho*Trace,data=NEr.trim)
+summary(NI.dm)
+summary(lm(AFDM~Pho*Trace+Nit+Pho:Nit,data=NEr.trim))
+shapiro.test(resid(NI.dm))
+plot(NI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=NEr.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(NEr.trim$Treatment),las=2)
+```
+
+Chla was primary P, secondary N, and tertiary trace metal limited. For AFDM, NxP and TracexP stimulated growth but no elements alone. Trace+P response was stronger than N+P. P alone had an increase in MC but P with trace had lower MC concentrations.
+
+###Green Bay
+```{r Green Bay}
+plot(Chla~Treatment,data=GB,las=2)
+GI.ch <- aov(Chla~Nit*Pho*Trace,data=GB.trim)
+summary(GI.ch)
+shapiro.test(resid(GI.ch))
+plot(GI.ch,which=1)
+
+plot(AFDM~Treatment,data=GB,las=2)
+GI.dm <- aov(AFDM~Nit*Pho*Trace,data=GB.trim)
+summary(GI.dm)
+summary(lm(AFDM~Nit*Pho,data=GB.trim))
+shapiro.test(resid(GI.dm))
+plot(GI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=GB.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(GB.trim$Treatment),las=2)
+```
+
+Strong N limitation for both Chla and AFDM. Slight inhibition in AFDM of N+P treatments. Adding N also stimulated MC production.
+
+###Ford
+Also needs a log transformation but some neg values of chla
+```{r Green Bay}
+plot(Chla~Treatment,data=Ford,las=2)
+FI.ch <- aov(Chla~Nit*Pho*Trace,data=Ford.trim)
+summary(FI.ch)
+shapiro.test(resid(FI.ch))
+plot(FI.ch,which=1)
+
+plot(AFDM~Treatment,data=Ford,las=2)
+FI.dm <- aov(AFDM~Nit*Pho*Trace,data=Ford.trim)
+summary(FI.dm)
+shapiro.test(resid(FI.dm))
+plot(FI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=Ford.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(Ford.trim$Treatment),las=2)
+```
+
+P limitation for chla and AFDM (stronger for chla), weak N (p=0.055) and N+P (p=0.087) for chla. All MC below DL.
+
+
+###MC across all sites
+```{r MC data}
+
+plot(MC~as.numeric(Treatment),data=Inc.trim,xaxt="n",xlab="",log="y",las=2)
+axis(1,at=seq(1,8),labels=levels(Inc.trim$Treatment),las=2)
+
+MCinc <- lmer(log(MC)~Nit*Pho*Trace+(1|Site),data=Inc.trim,na.action=na.omit)
+summary(MCinc)
+plot(MCinc)
+
+MCinc2 <- update(MCinc,.~.-Nit:Pho:Trace)
+anova(MCinc2,MCinc)
+#Three-way interaction is NS
+
+MCinc3 <- update(MCinc2,.~.-Pho:Trace)
+anova(MCinc3,MCinc2)
+#P:Trace is sig p=0.012
+
+MCinc4 <- update(MCinc2,.~.-Pho:Nit)
+anova(MCinc4,MCinc2)
+#N:P is NS
+
+MCinc5 <- update(MCinc4,.~.-Nit:Trace)
+anova(MCinc5,MCinc4)
+#N:Trace is NS
+
+MCinc6 <- update(MCinc5,.~.-Nit)
+anova(MCinc6,MCinc5)
+#N is significant (p < 0.001)
+
+summary(MCinc5)
+r.squaredGLMM(MCinc5)
+```
+
+Over every all sites, P+trace and nitrogen are influencing MC production. 99% of variance explained by site-to-site differences with just 0.3% related to fixed treatments.
