@@ -1,1 +1,81 @@
-USGS_Name,Site,Treatment,MCKent Ford +N,Ford,NH4,0.04Kent Ford +N,Ford,NH4,0.05Kent Ford +P,Ford,PO4,0.04Kent Ford +P,Ford,PO4,0.04Kent Ford +N +P +Trace,Ford,N+P+trace,0.05Kent Ford +N +P +Trace,Ford,N+P+trace,0.04Kent Ford +N +Trace,Ford,N+trace,0.04Kent Ford +N +Trace,Ford,N+trace,0.03Kent Ford +P +Trace,Ford,P+trace,0.04Kent Ford +P +Trace,Ford,P+trace,0.04Kent Ford +N +P,Ford,N+P,0.05Kent Ford +N +P,Ford,N+P,0.05Kent Ford Initial,Ford,Initial,0.04Kent Ford Initial,Ford,Initial,0.03Kent Ford +Chelex,Ford,Chelex,0.04Kent Ford +Chelex,Ford,Chelex,0.03Kent Ford Control,Ford,Control,0.04Kent Ford Control,Ford,Control,0.03Kent Ford +Trace,Ford,Trace,0.04Kent Ford +Trace,Ford,Trace,0.04Kent N Erie +P +Trace,NErie,P+trace,0.14Kent N Erie +P +Trace,NErie,P+trace,0.13Kent N Erie Control,NErie,Control,0.21Kent N Erie Control,NErie,Control,0.23Kent N Erie +N,NErie,NH4,0.18Kent N Erie +N,NErie,NH4,0.23Kent N Erie +N +P,NErie,N+P,0.19Kent N Erie +N +P,NErie,N+P,0.20Kent N Erie +Trace,NErie,Trace,0.20Kent N Erie +Trace,NErie,Trace,0.24Kent N Erie +Initial,NErie,Initial,0.06Kent N Erie +Initial,NErie,Initial,0.08Kent N Erie +Chelex,NErie,Chelex,0.27Kent N Erie +Chelex,NErie,Chelex,0.29Kent N Erie +P,NErie,PO4,0.26Kent N Erie +P,NErie,PO4,0.25Kent N Erie +N +P +Trace,NErie,N+P+trace,0.18Kent N Erie +N +P +Trace,NErie,N+P+trace,0.15Kent N Erie +N +Trace,NErie,N+trace,0.24Kent N Erie +N +Trace,NErie,N+trace,0.22Kent Maumee Control,Maumee,Control,4.07Kent Maumee Control,Maumee,Control,4.74Kent Maumee +Trace,Maumee,Trace,5.85Kent Maumee +Trace,Maumee,Trace,4.91Kent Maumee +N,Maumee,NH4,4.24Kent Maumee +N,Maumee,NH4,5.25Kent Maumee +P,Maumee,PO4,4.81Kent Maumee +P,Maumee,PO4,5.38Kent Maumee +N +P,Maumee,N+P,4.86Kent Maumee +N +P,Maumee,N+P,5.47Kent Maumee +N +Trace,Maumee,N+trace,8.97Kent Maumee +N +Trace,Maumee,N+trace,8.32Kent Maumee +P +Trace,Maumee,P+trace,4.81Kent Maumee +P +Trace,Maumee,P+trace,5.44Kent Maumee +N +P +Trace,Maumee,N+P+trace,5.18Kent Maumee +N +P +Trace,Maumee,N+P+trace,6.99Kent Maumee Initial,Maumee,Initial,8.65Kent Maumee Initial,Maumee,Initial,8.53Kent Maumee +Chelex,Maumee,Chelex,6.15Kent Maumee +Chelex,Maumee,Chelex,5.59Kent Green Bay Control,GB,Control,2.34Kent Green Bay Control,GB,Control,3.04Kent Green Bay +Trace,GB,Trace,2.77Kent Green Bay +Trace,GB,Trace,2.31Kent Green Bay +N,GB,NH4,5.23Kent Green Bay +N,GB,NH4,5.26Kent Green Bay +P,GB,PO4,2.26Kent Green Bay +P,GB,PO4,1.72Kent Green Bay +N +P,GB,N+P,5.79Kent Green Bay +N +P,GB,N+P,5.89Kent Green Bay +N +Trace,GB,N+trace,5.49Kent Green Bay +N +Trace,GB,N+trace,5.75Kent Green Bay +P +Trace,GB,P+trace,2.64Kent Green Bay +P +Trace,GB,P+trace,2.53Kent Green Bay +N +P +Trace,GB,N+P+trace,4.65Kent Green Bay +N +P +Trace,GB,N+P+trace,4.74Kent Green Bay Initial,GB,Initial,3.22Kent Green Bay Initial,GB,Initial,2.63Kent Green Bay +Chelex,GB,Chelex,2.45Kent Green Bay +Chelex,GB,Chelex,2.47
+USGS_Name,Site,Treatment,N,P,Trace,MC
+Kent Ford +N,Ford,NH4,NH4,noP,noT,0.04
+Kent Ford +N,Ford,NH4,NH4,noP,noT,0.05
+Kent Ford +P,Ford,PO4,noN,PO4,noT,0.04
+Kent Ford +P,Ford,PO4,noN,PO4,noT,0.04
+Kent Ford +N +P +Trace,Ford,N+P+trace,NH4,PO4,Trace,0.05
+Kent Ford +N +P +Trace,Ford,N+P+trace,NH4,PO4,Trace,0.04
+Kent Ford +N +Trace,Ford,N+trace,NH4,noP,Trace,0.04
+Kent Ford +N +Trace,Ford,N+trace,NH4,noP,Trace,0.03
+Kent Ford +P +Trace,Ford,P+trace,noN,PO4,Trace,0.04
+Kent Ford +P +Trace,Ford,P+trace,noN,PO4,Trace,0.04
+Kent Ford +N +P,Ford,N+P,NH4,PO4,noT,0.05
+Kent Ford +N +P,Ford,N+P,NH4,PO4,noT,0.05
+Kent Ford Initial,Ford,Initial,,,,0.04
+Kent Ford Initial,Ford,Initial,,,,0.03
+Kent Ford +Chelex,Ford,Chelex,,,,0.04
+Kent Ford +Chelex,Ford,Chelex,,,,0.03
+Kent Ford Control,Ford,Control,noN,noP,noT,0.04
+Kent Ford Control,Ford,Control,noN,noP,noT,0.03
+Kent Ford +Trace,Ford,Trace,noN,noP,Trace,0.04
+Kent Ford +Trace,Ford,Trace,noN,noP,Trace,0.04
+Kent N Erie +P +Trace,NErie,P+trace,noN,PO4,Trace,0.14
+Kent N Erie +P +Trace,NErie,P+trace,noN,PO4,Trace,0.13
+Kent N Erie Control,NErie,Control,noN,noP,noT,0.21
+Kent N Erie Control,NErie,Control,noN,noP,noT,0.23
+Kent N Erie +N,NErie,NH4,NH4,noP,noT,0.18
+Kent N Erie +N,NErie,NH4,NH4,noP,noT,0.23
+Kent N Erie +N +P,NErie,N+P,NH4,PO4,noT,0.19
+Kent N Erie +N +P,NErie,N+P,NH4,PO4,noT,0.2
+Kent N Erie +Trace,NErie,Trace,noN,noP,Trace,0.2
+Kent N Erie +Trace,NErie,Trace,noN,noP,Trace,0.24
+Kent N Erie +Initial,NErie,Initial,,,,0.06
+Kent N Erie +Initial,NErie,Initial,,,,0.08
+Kent N Erie +Chelex,NErie,Chelex,,,,0.27
+Kent N Erie +Chelex,NErie,Chelex,,,,0.29
+Kent N Erie +P,NErie,PO4,noN,PO4,noT,0.26
+Kent N Erie +P,NErie,PO4,noN,PO4,noT,0.25
+Kent N Erie +N +P +Trace,NErie,N+P+trace,NH4,PO4,Trace,0.18
+Kent N Erie +N +P +Trace,NErie,N+P+trace,NH4,PO4,Trace,0.15
+Kent N Erie +N +Trace,NErie,N+trace,NH4,noP,Trace,0.24
+Kent N Erie +N +Trace,NErie,N+trace,NH4,noP,Trace,0.22
+Kent Maumee Control,Maumee,Control,noN,noP,noT,4.07
+Kent Maumee Control,Maumee,Control,noN,noP,noT,4.74
+Kent Maumee +Trace,Maumee,Trace,noN,noP,Trace,5.85
+Kent Maumee +Trace,Maumee,Trace,noN,noP,Trace,4.91
+Kent Maumee +N,Maumee,NH4,NH4,noP,noT,4.24
+Kent Maumee +N,Maumee,NH4,NH4,noP,noT,5.25
+Kent Maumee +P,Maumee,PO4,noN,PO4,noT,4.81
+Kent Maumee +P,Maumee,PO4,noN,PO4,noT,5.38
+Kent Maumee +N +P,Maumee,N+P,NH4,PO4,noT,4.86
+Kent Maumee +N +P,Maumee,N+P,NH4,PO4,noT,5.47
+Kent Maumee +N +Trace,Maumee,N+trace,NH4,noP,Trace,8.97
+Kent Maumee +N +Trace,Maumee,N+trace,NH4,noP,Trace,8.32
+Kent Maumee +P +Trace,Maumee,P+trace,noN,PO4,Trace,4.81
+Kent Maumee +P +Trace,Maumee,P+trace,noN,PO4,Trace,5.44
+Kent Maumee +N +P +Trace,Maumee,N+P+trace,NH4,PO4,Trace,5.18
+Kent Maumee +N +P +Trace,Maumee,N+P+trace,NH4,PO4,Trace,6.99
+Kent Maumee Initial,Maumee,Initial,,,,8.65
+Kent Maumee Initial,Maumee,Initial,,,,8.53
+Kent Maumee +Chelex,Maumee,Chelex,,,,6.15
+Kent Maumee +Chelex,Maumee,Chelex,,,,5.59
+Kent Green Bay Control,GB,Control,noN,noP,noT,2.34
+Kent Green Bay Control,GB,Control,noN,noP,noT,3.04
+Kent Green Bay +Trace,GB,Trace,noN,noP,Trace,2.77
+Kent Green Bay +Trace,GB,Trace,noN,noP,Trace,2.31
+Kent Green Bay +N,GB,NH4,NH4,noP,noT,5.23
+Kent Green Bay +N,GB,NH4,NH4,noP,noT,5.26
+Kent Green Bay +P,GB,PO4,noN,PO4,noT,2.26
+Kent Green Bay +P,GB,PO4,noN,PO4,noT,1.72
+Kent Green Bay +N +P,GB,N+P,NH4,PO4,noT,5.79
+Kent Green Bay +N +P,GB,N+P,NH4,PO4,noT,5.89
+Kent Green Bay +N +Trace,GB,N+trace,NH4,noP,Trace,5.49
+Kent Green Bay +N +Trace,GB,N+trace,NH4,noP,Trace,5.75
+Kent Green Bay +P +Trace,GB,P+trace,noN,PO4,Trace,2.64
+Kent Green Bay +P +Trace,GB,P+trace,noN,PO4,Trace,2.53
+Kent Green Bay +N +P +Trace,GB,N+P+trace,NH4,PO4,Trace,4.65
+Kent Green Bay +N +P +Trace,GB,N+P+trace,NH4,PO4,Trace,4.74
+Kent Green Bay Initial,GB,Initial,,,,3.22
+Kent Green Bay Initial,GB,Initial,,,,2.63
+Kent Green Bay +Chelex,GB,Chelex,,,,2.45
+Kent Green Bay +Chelex,GB,Chelex,,,,2.47
