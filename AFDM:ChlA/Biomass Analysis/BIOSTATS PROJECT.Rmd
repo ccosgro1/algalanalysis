@@ -4,14 +4,15 @@ author: "Jordyn Stoll"
 date: "April 24, 2018"
 output: html_document
 ---
-
+Go back to the ANOVA and find the Tukey tst for the higest order interaction and label bars accoding to that
+--NE will be tricky to distinguish between the two types of limitation
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 setwd("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Biomass Analysis/")
 Compiled.Meso.Data <-read.csv("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Compiled Meso Data.csv")
 summary(Compiled.Meso.Data)
 str(Compiled.Meso.Data)
-#get rid of chelex and intial treatments
+#remove chelex and intial treatments
 simplified<-Compiled.Meso.Data[which(Compiled.Meso.Data$treatment!='chelex'& Compiled.Meso.Data$treatment!='initial'),]
 #subset each site by finding the 'string' in the sample ID
 ford1<-subset(simplified,grepl('Ford', simplified$sampleID))
@@ -25,7 +26,7 @@ maumee1<-subset(simplified,grepl('Maumee',simplified$sampleID))
 fordAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=ford1)
 shapiro.test(resid(fordAFDMman))
 par(mfrow=c(1,2))
-plot(fordAFDMman,which=c(1,2))
+plot(fordAFDMman,which=c(1,2), main="Ford Normality")
 summary(fordAFDMman)
 ##trace and p significant
 #create plot to demonstrate AFDM~Treatment
@@ -34,14 +35,17 @@ ford1$treatment<-ford1$treatment[,drop=T]
 plot(AFDM~treatment,data=ford1,
      main="Treatment Effect on AFDM: Ford River",
      ylab="AFDM (mg/L)",
-     xlab="", las=2)
+     xlab="", las=2,
+     col=c("gray76","gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 ```
 #GREENBAY
 ```{r}
 #AFDM MANOVA
 gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay1)
 shapiro.test(resid(gbAFDMman))
-plot(gbAFDMman,which=c(1,2))
+par(mfrow=c(1,2))
+plot(gbAFDMman,which=c(1,2),main="Green Bay Normality")
 summary(gbAFDMman)
 #p:n significant, p and p:trace almost significant 
 #create plot to demonstrate AFDM~Treatment
@@ -50,14 +54,19 @@ greenbay1$treatment<-greenbay1$treatment[,drop=T]
 plot(AFDM~treatment,data=greenbay1,
      main="Treatment Effect on AFDM: Green Bay",
      ylab="AFDM (mg/L)",
-     xlab="", las=2)
+     xlab="", las=2,
+     col=c("gray76","darkturquoise","gray76","gray76","darkturquoise","gray76","gray76","gray76"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
+
+boxplot(AFDM~nitrogen*phosphorus, data=greenbay1, main="Green Bay N & P effect on AFDM", xlab="Treatment Nitrogen*Phosphorus",ylab="AFDM mg/L")
 ```
 ##NORTH ERIE
 ```{r}
 #AFDM MANOVA
 neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie1)
 shapiro.test(resid(neAFDMman))
-plot(neAFDMman,which=c(1,2))
+par(mfrow=c(1,2))
+plot(neAFDMman,which=c(1,2),main="North Erie Normality")
 summary(neAFDMman)
 #p, trace, n:p, p:trace significant 
 #create plot to demonstrate AFDM~Treatment
@@ -66,15 +75,19 @@ nerie1$treatment<-nerie1$treatment[,drop=T]
 plot(AFDM~treatment,data=nerie1,
      main="Treatment Effect on AFDM: North Erie",
      ylab="AFDM (mg/L)",
-     xlab="", las=2)
+     xlab="", las=2,
+     col=c("gray76","darkturquoise","gray76","gray76","gray76","darkturquoise","darkturquoise","darkturquoise"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 ```
 ##MAUMEE
 ```{r}
 #AFDM MANOVA
 mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee1)
 shapiro.test(resid(mAFDMman))
-plot(mAFDMman,which=c(1,2))
+par(mfrow=c(1,2))
+plot(mAFDMman,which=c(1,2),main="Maumee Normality")
 summary(mAFDMman)
+TukeyHSD(mAFDMman)
 #p, p:trace significant
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
@@ -82,6 +95,11 @@ maumee1$treatment<-maumee1$treatment[,drop=T]
 plot(AFDM~treatment,data=maumee1,
      main="Treatment Effect on AFDM: Maumee River",
      ylab="AFDM (mg/L)",
-     xlab="", las=2)
+     xlab="", las=2,
+     col=c("gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise","gray76"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
+
+boxplot(AFDM~phosphorus*trace, data=maumee1, main="Maumee P & Trace effect on AFDM", ylab="AFDM (mg/L)", xlab="Treatment Phosphorus*Trace metals")
+
 ```
 
