@@ -1,0 +1,314 @@
+---
+title: "USGS HABs 2017"
+author: "Dave Costello"
+date: "8/23/2017"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("~/Dropbox/ASAP/2017 USGS/Data analysis")
+setwd("C:/Users/dcostel3/Dropbox/ASAP/2017 USGS/algalanalysis/Daves code/")
+
+options(device=quartz)
+
+library(lme4)
+library(MuMIn)
+```
+
+##Function for calculating log response ratios from incubator experiment
+Function calculates log RR and the standard error of RR for each treatment (treatment/control) excluding initial data. Returns a dataframe with treatment, RR and se as columns.
+
+```{r}
+logRR <- function(dataset){
+  dataset$Treatment <- dataset$Treatment[drop=T]
+  trt <- levels(dataset$Treatment)
+  trt.no <- length(trt)-1
+  means <- with(dataset,tapply(Chla,Treatment,mean,na.rm=T))
+  sds <- with(dataset,tapply(Chla,Treatment,sd,na.rm=T))
+  ns <- with(dataset,tapply(Chla,Treatment,length))
+  logRR <- vector(length=trt.no)
+  seRR <- vector(length=trt.no)
+  
+  for(i in 1:trt.no){
+    logRR[i] <- round(log(means[i+1])-log(means[1]),3)
+    sp2 <- (((ns[1]-1)*sds[1]^2+(ns[i+1]-1)*sds[i+1]^2)/(ns[1]+ns[i+1]-2))
+    seRR[i] <- round(sqrt(sp2*(1/(means[1]^2*ns[1])+1/(means[i+1]^2*ns[i+1]))),3)
+    
+  }
+  res <- data.frame(trt[-1],logRR,seRR,row.names=NULL)
+  colnames(res)<-c("Treatment","logRR","seRR")
+  return(res)
+}
+
+```
+
+
+##Data prep
+```{r}
+inc <- read.csv("HAB2017_incub.csv")
+
+#Resorts the treatments to a better order
+inc$Treatment <- factor(inc$Treatment,levels=c("Initial","Control","NH4","PO4","Trace","N+P","N+trace","P+trace","N+P+trace","Chelex"))
+inc$Nit <- factor(inc$Nit,levels=c("NoN","NH4"))
+inc$Pho <- factor(inc$Pho,levels=c("NoP","PO4"))
+inc$Trace <- factor(inc$Trace,levels=c("NoT","Trace"))
+
+#Chelex treatments had +10 mg/treatment. Correct all values by -20 mg/L
+inc[inc$Treatment=="Chelex",]$Dry_mass <- inc[inc$Treatment=="Chelex",]$Dry_mass-20
+
+summary(inc)
+
+#MC data
+MC <- read.csv("incub_MC.csv")
+MCag <- aggregate(MC$MC,by=list(MC$Treatment,MC$Site),mean)
+colnames(MCag)[3]<-"MC"
+
+#Merge data
+inc$TS <- paste(inc$Site,inc$Treatment)
+MCag$TS <- paste(MCag$Group.2,MCag$Group.1)
+inc2 <- merge(inc,MCag[,3:4],by="TS")
+
+#Site subsets
+Ford <- subset(inc2,inc2$Site=="Ford")
+GB <- subset(inc2,inc2$Site=="GB")
+NEr <- subset(inc2,inc2$Site=="NErie")
+Mau <- subset(inc2,inc2$Site=="Maumee")
+
+Inc.trim <- subset(inc2,inc2$Treatment!="Initial"&inc2$Treatment!="Chelex")
+Inc.trim$Treatment <- factor(Inc.trim$Treatment)[drop=T,]
+
+Ford.trim <- subset(Inc.trim,Site=="Ford")
+Mau.trim <- subset(Inc.trim,Site=="Maumee")
+NEr.trim <- subset(Inc.trim,Site=="NErie")
+GB.trim <- subset(Inc.trim,Site=="GB")
+
+```
+
+##Calculate log response ratios
+```{r}
+FordRR <- logRR(Ford.trim)
+MauRR <- logRR(Mau.trim)
+NErRR <- logRR(NEr.trim)
+```
+
+
+##Incubator experiment - dry mass
+Data exploration plots
+
+```{r}
+plot(Dry_mass~Treatment,data=Ford,las=2,ylab="Dry mass (mg/L)")
+plot(Dry_mass~Treatment,data=GB,las=2,ylab="Dry mass (mg/L)")
+```
+
+##Incubator experiment - chlorophyll a
+Data exploration plots looking at log response ratios
+These plots were used for presentations at WMAO and Slippery Rock (2017/2018)
+
+```{r}
+plot(Chla*1000~Treatment,data=Ford,las=2,ylab="Chlorophyll a (µg/L)")
+plot(Chla*1000~Treatment,data=GB,las=2,ylab="Chlorophyll a (µg/L)")
+plot(Chla*1000~Treatment,data=Mau,las=2,ylab="Chlorophyll a (µg/L)")
+plot(Chla*1000~Treatment,data=NEr,las=2,ylab="Chlorophyll a (µg/L)")
+
+#Vector of colors for treatments
+cs <- c("orangered3","seagreen4","black","sienna2","chocolate4","coral3","dodgerblue")
+
+MauRR<-MauRR[c(1,2,4,3,5,6,7,8),]
+
+par(pin=c(3,2))
+xloc <- barplot(MauRR$logRR[1:7],las=1,ylim=c(-1,1),ylab="ln(Treatment/Control)",xaxt="n",border=NA,col=cs)
+with(MauRR[1:7,],arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+mtext(MauRR$Treatment[1:7],side=1,at=xloc,las=2,line=1)
+abline(h=c(0.385,-0.385,0),lwd=2,lty=c(2,2,1))
+box()
+
+NErRR<-NErRR[c(1,2,4,3,5,6,7,8),]
+
+par(pin=c(3,2))
+xloc <- barplot(NErRR$logRR[1:7],las=1,ylim=c(-1,3.5),ylab="ln(Treatment/Control)",xaxt="n",border=NA,col=cs)
+with(NErRR[1:7,],arrows(xloc,(logRR+seRR),xloc,(logRR-seRR),length=0.05,angle=90,code=3))
+mtext(NErRR$Treatment[1:7],side=1,at=xloc,las=2,line=1)
+abline(h=c(0.385,-0.385,0),lwd=2,lty=c(2,2,1))
+box()
+```
+
+
+##Incubator MC concentration
+Plots of raw chlorophyll a concentration data in all treatments (i.e., no log RR). Plots also included an overlay of microcystin concentrations (data from LH Larson @ USGS). Plots were used for project update call with James Larson (Mar 2018).
+
+```{r}
+par(pin=c(4,3))
+plot(Chla*1000~Treatment,data=Mau,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
+stripchart(MC*25~Treatment,data=Mau,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
+mtext("Microcystin (ug/L)",4,line=2,col="red")
+legend("top","Maumee",bty="n",cex=1.4)
+
+par(pin=c(4,3))
+plot(Chla*1000~Treatment,data=GB,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
+stripchart(MC*25~Treatment,data=GB,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
+mtext("Microcystin (ug/L)",4,line=2,col="red")
+legend("top","Green Bay",bty="n",cex=1.4)
+
+par(pin=c(4,3))
+plot(Chla*1000~Treatment,data=NEr,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
+stripchart(MC*25~Treatment,data=NEr,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
+mtext("Microcystin (ug/L)",4,line=2,col="red")
+legend("top","N. Erie",bty="n",cex=1.4)
+
+#Ford
+par(pin=c(4,3))
+plot(Chla*1000~Treatment,data=Ford,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
+stripchart(MC*25~Treatment,data=Ford,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
+mtext("Microcystin (ug/L)",4,line=2,col="red")
+legend("top","Ford",bty="n",cex=1.4)
+
+#Ford with smaller y-axis scales
+par(pin=c(4,3))
+plot(Chla*1000~Treatment,data=Ford,las=2,xlab="",ylim=c(0,50),ylab="Chlorophyll a (ug/L)")
+stripchart(MC*25~Treatment,data=Ford,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,2,by=0.4),at=seq(0,50,by=10),col="red",col.axis="red")
+mtext("Microcystin (ug/L)",4,line=2,col="red")
+legend("top","Ford",bty="n",cex=1.4)
+abline(h=0.1*25,col="red",lty=2)
+
+#N Erie with smaller y-axis scales
+par(pin=c(4,3))
+plot(Chla*1000~Treatment,data=NEr,las=2,xlab="",ylim=c(0,120),ylab="Chlorophyll a (ug/L)")
+stripchart(MC*60~Treatment,data=NEr,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,2,by=0.4),at=seq(0,120,by=24),col="red",col.axis="red")
+mtext("Microcystin (ug/L)",4,line=2,col="red")
+legend("top","N. Erie",bty="n",cex=1.4)
+abline(h=0.1*60,col="red",lty=2)
+```
+
+##Incubator stats
+###Maumee
+```{r Maumee}
+plot(Chla~Treatment,data=Mau,las=2)
+MI.ch <- aov(Chla~Nit*Pho*Trace,data=Mau.trim)
+summary(MI.ch)
+summary(aov(Chla~Nit+Pho+Trace+Nit:Trace,data=Mau.trim))
+shapiro.test(resid(MI.ch))
+plot(MI.ch,which=1)
+
+plot(AFDM~Treatment,data=Mau,las=2)
+MI.dm <- aov(AFDM~Nit*Pho*Trace,data=Mau.trim)
+summary(MI.dm)
+summary.lm(MI.dm)
+shapiro.test(resid(MI.dm))
+plot(MI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=Mau.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(Mau.trim$Treatment),las=2)
+```
+
+Chla was limited by N and P and weakly by N+trace (p = 0.075). AFDM also responded to P but with a negative interaction between P+trace. Microcystin was elevated in N+trace and less so in N+P+trace.
+
+###North Erie
+Should do a log transformation but there are some neg values.
+```{r N. Erie}
+plot(Chla~Treatment,data=NEr,las=2)
+NI.ch <- aov(Chla~Nit*Pho*Trace,data=NEr.trim)
+summary(NI.ch)
+shapiro.test(resid(NI.ch))
+plot(NI.ch,which=1)
+
+plot(AFDM~Treatment,data=NEr,las=2)
+NI.dm <- aov(AFDM~Nit*Pho*Trace,data=NEr.trim)
+summary(NI.dm)
+summary(lm(AFDM~Pho*Trace+Nit+Pho:Nit,data=NEr.trim))
+shapiro.test(resid(NI.dm))
+plot(NI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=NEr.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(NEr.trim$Treatment),las=2)
+```
+
+Chla was primary P, secondary N, and tertiary trace metal limited. For AFDM, NxP and TracexP stimulated growth but no elements alone. Trace+P response was stronger than N+P. P alone had an increase in MC but P with trace had lower MC concentrations.
+
+###Green Bay
+```{r Green Bay}
+plot(Chla~Treatment,data=GB,las=2)
+GI.ch <- aov(Chla~Nit*Pho*Trace,data=GB.trim)
+summary(GI.ch)
+shapiro.test(resid(GI.ch))
+plot(GI.ch,which=1)
+
+plot(AFDM~Treatment,data=GB,las=2)
+GI.dm <- aov(AFDM~Nit*Pho*Trace,data=GB.trim)
+summary(GI.dm)
+summary(lm(AFDM~Nit*Pho,data=GB.trim))
+shapiro.test(resid(GI.dm))
+plot(GI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=GB.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(GB.trim$Treatment),las=2)
+```
+
+Strong N limitation for both Chla and AFDM. Slight inhibition in AFDM of N+P treatments. Adding N also stimulated MC production.
+
+###Ford
+Also needs a log transformation but some neg values of chla
+```{r Green Bay}
+plot(Chla~Treatment,data=Ford,las=2)
+FI.ch <- aov(Chla~Nit*Pho*Trace,data=Ford.trim)
+summary(FI.ch)
+shapiro.test(resid(FI.ch))
+plot(FI.ch,which=1)
+
+plot(AFDM~Treatment,data=Ford,las=2)
+FI.dm <- aov(AFDM~Nit*Pho*Trace,data=Ford.trim)
+summary(FI.dm)
+shapiro.test(resid(FI.dm))
+plot(FI.dm,which=1)
+
+plot(MC~as.numeric(Treatment),data=Ford.trim,las=2,xaxt="n",xlab="")
+axis(1,at=seq(1,8),labels=levels(Ford.trim$Treatment),las=2)
+```
+
+P limitation for chla and AFDM (stronger for chla), weak N (p=0.055) and N+P (p=0.087) for chla. All MC below DL.
+
+
+###MC across all sites
+```{r MC data}
+
+plot(MC~as.numeric(Treatment),data=Inc.trim,xaxt="n",xlab="",log="y",las=2)
+axis(1,at=seq(1,8),labels=levels(Inc.trim$Treatment),las=2)
+
+MCinc <- lmer(log(MC)~Nit*Pho*Trace+(1|Site),data=Inc.trim,na.action=na.omit)
+summary(MCinc)
+plot(MCinc)
+
+MCinc2 <- update(MCinc,.~.-Nit:Pho:Trace)
+anova(MCinc2,MCinc)
+#Three-way interaction is NS
+
+MCinc3 <- update(MCinc2,.~.-Pho:Trace)
+anova(MCinc3,MCinc2)
+#P:Trace is sig p=0.012
+
+MCinc4 <- update(MCinc2,.~.-Pho:Nit)
+anova(MCinc4,MCinc2)
+#N:P is NS
+
+MCinc5 <- update(MCinc4,.~.-Nit:Trace)
+anova(MCinc5,MCinc4)
+#N:Trace is NS
+
+MCinc6 <- update(MCinc5,.~.-Nit)
+anova(MCinc6,MCinc5)
+#N is significant (p < 0.001)
+
+summary(MCinc5)
+r.squaredGLMM(MCinc5)
+```
+
+Over every all sites, P+trace and nitrogen are influencing MC production. 99% of variance explained by site-to-site differences with just 0.3% related to fixed treatments.
