@@ -68,7 +68,7 @@ NMDS- how different are communities between treatments?
 #fussy about low numbers. Good at deciphering similar communities.
 #create matrices for the environment and for the species- opposites
 #autotransform is a double sqrt(Wisconsin transformation)- Bray Curtis dissimilarity to decide similarity between observations- regress between points within samples to determine dismilarity- apply transformation then does pairwise comparison to determine similarity metric
-#ordination rules of thumb 2-D- stess should be less than 0.2... if it is ober 0.2 you need to fiddle with the transformation until it works.
+#ordination rules of thumb 2-D- stess should be less than 0.2... if it is over 0.2 you need to fiddle with the transformation until it works.
 #environm gives centroids, while adonic gives stats
 #perm is the number of permuations.. or times it tries to fit
 ```{r}

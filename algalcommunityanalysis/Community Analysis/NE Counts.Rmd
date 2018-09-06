@@ -7,24 +7,109 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+ne<- read.csv("~/Documents/GitHub/algalanalysis/algalcommunityanalysis/Community Analysis/NE counts.csv")
+library(vegan)
+str(ne)
+summary(ne)
+nerie<-ne[1:37,1:147 ]
+str(nerie)
 ```
 
-## R Markdown
+Use the Vegan package
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+Create shannon diversity, richness, and rare species
+```{r}
+speciesmatrix<- nerie [5:147]
+nerie$shannon<- diversity(speciesmatrix, index = "shannon")
+nerie$richness<- specnumber(speciesmatrix)
+nerie$rarespecies<-rarefy(speciesmatrix, sample=min(nerie$Total))
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+Generalize Linear model
+#add an offset value to consider sample effect into the Shannon model. Slope=1. 
+```{r}
+shannon.model<-glm(shannon~Treatment+offset(Total), data=nerie)
+shannon.model
+summary(shannon.model)
+anova.shannon.model<-aov(shannon.model)
+anova.shannon.model
+summary(anova.shannon.model)
+TukeyHSD(anova.shannon.model)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Plot the summary statistics for shannon diversity and species richness
+#When using ggplot, use + between different layers
+#Standard Error (se) is equal to sd/sqrt(length)
+```{r}
+library(plyr)
+summarystatsShannonRichness<- ddply(nerie, "Treatment", summarize,
+                     shannon.mean=mean(shannon), shannon.sd=sd(shannon),
+                     shannon.se=sd(shannon)/sqrt(length(shannon)),richness.mean=mean(richness),
+                      richness.sd=sd(richness), richness.se=sd(richness)/sqrt(length(richness)))
+
+library(ggplot2)
+ShannonDiversitysummaryplot<-ggplot(summarystatsShannonRichness, aes(Treatment, shannon.mean, fill=Treatment))+ 
+  geom_bar(stat='identity',color='black')+
+  geom_errorbar(aes(ymin=shannon.mean-shannon.sd, ymax=shannon.mean+shannon.sd))+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))+
+  ggtitle("North Erie Shannon Diversity vs. Treatment")
+
+ShannonDiversitysummaryplot
+
+richnesssummaryplot<-ggplot(summarystatsShannonRichness, aes(Treatment,richness.mean, fill=Treatment))+ 
+  geom_bar(stat='identity',color='black')+geom_errorbar(aes(ymin=richness.mean-richness.sd, ymax=richness.mean+richness.sd))+
+    theme(axis.text.x=element_text(angle = 45, hjust=1))+
+  ggtitle("North Erie Richness vs. Treatment")
+richnesssummaryplot
+
+```
+
+
+NMDS- how different are communities between treatments? 
+#fussy about low numbers. Good at deciphering similar communities.
+#create matrices for the environment and for the species- opposites
+#autotransform is a double sqrt(Wisconsin transformation)- Bray Curtis dissimilarity to decide similarity between observations- regress between points within samples to determine dismilarity- apply transformation then does pairwise comparison to determine similarity metric
+#ordination rules of thumb 2-D- stess should be less than 0.2... if it is over 0.2 you need to fiddle with the transformation until it works.
+#environm gives centroids, while adonic gives stats
+#perm is the number of permuations.. or times it tries to fit
+
+```{r}
+speciesm<-nerie[2:37,5:147]
+environm<-nerie[2:37,1:4]
+speciesord<-metaMDS(speciesm,
+             autotransform = T)
+speciesord
+environfit<-envfit(speciesord~Treatment, environm, perm=999)
+summary(environfit)
+environfit
+betad<- betadiver(speciesm, "z")
+adonis(betad~Treatment, environm, perm=999)
+#since this is significant, we need to do a pairwise comparison of each treatment- subset treatments and comapre
+#add in pal to color code treatments.
+plot(speciesord, disp='species', type='n', bg=pal[Treatment])
+with(environm, points(speciesord, display='species', col='black'))
+plot(environfit, col='green')
+
+```
+
+
+##Ahh boy, let's test the counter's effect...
+```{r}
+speciesm<-nerie[2:37,5:147]
+environm<-nerie[2:37,1:4]
+speciesord<-metaMDS(speciesm,
+             autotransform = T)
+speciesord
+environfit<-envfit(speciesord~Counter, environm, perm=999)
+summary(environfit)
+environfit
+betad<- betadiver(speciesm, "z")
+adonis(betad~Treatment, environm, perm=999)
+#since this is significant, we need to do a pairwise comparison of each treatment- subset treatments and comapre
+#add in pal to color code treatments.
+plot(speciesord, disp='species', type='n', bg=pal[Counter])
+with(environm, points(speciesord, display='species', col='black'))
+plot(environfit, col='green')
+```
+#Brian, you're fired!
