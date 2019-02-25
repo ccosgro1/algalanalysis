@@ -43,6 +43,8 @@ Plot the summary statistics for shannon diversity and species richness
 #Standard Error (se) is equal to sd/sqrt(length)
 ```{r}
 library(plyr)
+nerie$Treatment <- factor(nerie$Treatment,levels=c("Initial","Control","Nitrogen","Phosphorus", "Trace","N+P","N+Trace","P+Trace","N+P+Trace"))
+
 summarystatsShannonRichness<- ddply(nerie, "Treatment", summarize,
                      shannon.mean=mean(shannon), shannon.sd=sd(shannon),
                      shannon.se=sd(shannon)/sqrt(length(shannon)),richness.mean=mean(richness),

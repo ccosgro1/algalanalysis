@@ -35,7 +35,98 @@ ford1$treatment<-ford1$treatment[,drop=T]
 plot(AFDM~treatment,data=ford1,
      main="Treatment Effect on AFDM: Ford River",
      ylab="AFDM (mg/L)",
+     xlab="Treatment", las=2,
+     col=c("gray76","gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
+```
+#GREENBAY
+```{r}
+#AFDM MANOVA
+gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay1)
+shapiro.test(resid(gbAFDMman))
+par(mfrow=c(1,2))
+plot(gbAFDMman,which=c(1,2),main="Green Bay Normality")
+summary(gbAFDMman)
+#p:n significant, p and p:trace almost significant 
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+greenbay1$treatment<-greenbay1$treatment[,drop=T]
+plot(AFDM~treatment,data=greenbay1,
+     main="Treatment Effect on AFDM: Green Bay",
+     ylab="AFDM (mg/L)",
      xlab="", las=2,
+     col=c("gray76","darkturquoise","gray76","gray76","darkturquoise","gray76","gray76","gray76"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
+
+boxplot(AFDM~nitrogen*phosphorus, data=greenbay1, main="Green Bay N & P effect on AFDM", xlab="Treatment Nitrogen*Phosphorus",ylab="AFDM mg/L")
+```
+##NORTH ERIE
+```{r}
+#AFDM MANOVA
+neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie1)
+shapiro.test(resid(neAFDMman))
+par(mfrow=c(1,2))
+plot(neAFDMman,which=c(1,2),main="North Erie Normality")
+summary(neAFDMman)
+#p, trace, n:p, p:trace significant 
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+nerie1$treatment<-nerie1$treatment[,drop=T]
+plot(AFDM~treatment,data=nerie1,
+     main="Treatment Effect on AFDM: North Erie",
+     ylab="AFDM (mg/L)",
+     xlab="", las=2,
+     col=c("gray76","darkturquoise","gray76","gray76","gray76","darkturquoise","darkturquoise","darkturquoise"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
+```
+##MAUMEE
+```{r}
+#AFDM MANOVA
+mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee1)
+shapiro.test(resid(mAFDMman))
+par(mfrow=c(1,2))
+plot(mAFDMman,which=c(1,2),main="Maumee Normality")
+summary(mAFDMman)
+TukeyHSD(mAFDMman)
+#p, p:trace significant
+#create plot to demonstrate AFDM~Treatment
+par(mfrow=c(1,1))
+maumee1$treatment<-maumee1$treatment[,drop=T]
+plot(AFDM~treatment,data=maumee1,
+     main="Treatment Effect on AFDM: Maumee River",
+     ylab="AFDM (mg/L)",
+     xlab="", las=2,
+     col=c("gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise","gray76"))
+legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
+
+boxplot(AFDM~phosphorus*trace, data=maumee1, main="Maumee P & Trace effect on AFDM", ylab="AFDM (mg/L)", xlab="Treatment Phosphorus*Trace metals")
+
+```
+
+Start Chla Analysis
+##FORD
+```{r}
+#Chla MANOVA
+fordChlAman<-aov(ChlA~nitrogen*phosphorus*trace, data=ford1)
+shapiro.test(resid(fordChlAman))
+par(mfrow=c(1,2))
+plot(fordChlAman,which=c(1,2), main="Ford Normality")
+summary(fordChlAman)
+##NEEDS TRANSFORMED
+ford1$logchla<-log(ford1$ChlA+1)
+fordChlAman2<-aov(logchla~nitrogen*phosphorus*trace, data=ford1)
+shapiro.test(resid(fordChlAman2))
+par(mfrow=c(1,2))
+plot(fordChlAman2,which=c(1,2), main="Ford Normality")
+summary(fordChlAman2)
+#log+1 transformation is still not normally distributed
+#create plot to demonstrate ChlA~Treatment
+par(mfrow=c(1,1))
+ford1$treatment<-ford1$treatment[,drop=T]
+plot(ChlA~treatment,data=ford1,
+     main="Treatment Effect on ChlA: Ford River",
+     ylab="ChlA (mg/L)",
+     xlab="Treatment", las=2,
      col=c("gray76","gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise"))
 legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 ```

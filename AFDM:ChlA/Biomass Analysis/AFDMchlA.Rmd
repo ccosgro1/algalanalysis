@@ -1,7 +1,7 @@
 ---
 title: "AFDM/Chl-a"
 author: "Jordyn Stoll"
-date: "April 9, 2018"
+date: "Feb 20, 2019"
 output: html_document
 ---
 
@@ -62,13 +62,15 @@ logRR <- function(ford){
 }
 FordRR<-logRR(ford)
 ### how do I plot this???
+par(mfrow=c(1,1))
 plot(logRR~Treatment, data=FordRR, las=2)
 
 
 
 #CHLA linear model, one way ANOVA and Tukey post hoc
 #log+1 transform chla data and replace ChlA = 0 with detection limit for 150ml (0.00089)
-ford$ChlA[ford$ChlA == 0] <-0.00089
+#ford$ChlA[ford$ChlA == 0] <-0.00089
+#^THIS WAS ALREADY DONE-ZEROS AND NEGATIVE VALUES REPLACED WITH DETECTION LIMITS (SPECIFIC DL FOR EACH VOLUME FILTERED-VARIED FOR SOME SAMPLES)
 ford$logchla<-log(ford$ChlA+1)
 fordLMchla<-lm(logchla~treatment, data=ford)
 shapiro.test(resid(fordLMchla))
@@ -84,6 +86,8 @@ TukeyHSD(fordaovchla)
 fordCHLAman<-aov(logchla~nitrogen*phosphorus*trace, data=ford)
 shapiro.test(resid(fordCHLAman))
 plot(fordCHLAman,which=c(1,2))
+
+### HOW TO TRANSFORM THIS DATA TO NORMALIZE IT???
 
 ```
 
@@ -124,7 +128,33 @@ gbCHLAman<-aov(logchla~nitrogen*phosphorus*trace, data=greenbay)
 shapiro.test(resid(gbCHLAman))
 plot(gbCHLAman,which=c(1,2))
 summary(gbCHLAman)
-#needs transformed before conclusions..
+
+
+#Dave's Code for responce ratio
+logRRGB <- function(greenbay){
+  greenbay$treatment <- greenbay$treatment[drop=T]
+  trt <- levels(greenbay$treatment)
+  trt.no <- length(trt)-1
+  means <- with(greenbay,tapply(AFDM,treatment,mean,na.rm=T))
+  sds <- with(greenbay,tapply(AFDM,treatment,sd,na.rm=T))
+  ns <- with(greenbay,tapply(AFDM,treatment,length))
+  logRRGB <- vector(length=trt.no)
+  seRR <- vector(length=trt.no)
+  
+  for(i in 1:trt.no){
+    logRRGB[i] <- round(log(means[i+1])-log(means[1]),3)
+    sp2 <- (((ns[1]-1)*sds[1]^2+(ns[i+1]-1)*sds[i+1]^2)/(ns[1]+ns[i+1]-2))
+    seRR[i] <- round(sqrt(sp2*(1/(means[1]^2*ns[1])+1/(means[i+1]^2*ns[i+1]))),3)
+    
+  }
+  res <- data.frame(trt[-1],logRRGB,seRR,row.names=NULL)
+  colnames(res)<-c("Treatment","logRRGB","seRR")
+  return(res)
+}
+GreenBayRR<-logRRGB(greenbay)
+### how do I plot this???
+par(mfrow=c(1,1))
+plot(logRRGB~Treatment, data=GreenBayRR, las=2)
 ```
 
 
@@ -147,10 +177,38 @@ plot(neAFDMman,which=c(1,2))
 summary(neAFDMman)
 #p, trace, n:p, p:trace significant 
 
+#Dave's Code for responce ratio
+logRRNE <- function(nerie){
+  nerie$treatment <- nerie$treatment[drop=T]
+  trt <- levels(nerie$treatment)
+  trt.no <- length(trt)-1
+  means <- with(nerie,tapply(AFDM,treatment,mean,na.rm=T))
+  sds <- with(nerie,tapply(AFDM,treatment,sd,na.rm=T))
+  ns <- with(nerie,tapply(AFDM,treatment,length))
+  logRRNE <- vector(length=trt.no)
+  seRR <- vector(length=trt.no)
+  
+  for(i in 1:trt.no){
+    logRRNE[i] <- round(log(means[i+1])-log(means[1]),3)
+    sp2 <- (((ns[1]-1)*sds[1]^2+(ns[i+1]-1)*sds[i+1]^2)/(ns[1]+ns[i+1]-2))
+    seRR[i] <- round(sqrt(sp2*(1/(means[1]^2*ns[1])+1/(means[i+1]^2*ns[i+1]))),3)
+    
+  }
+  res <- data.frame(trt[-1],logRRNE,seRR,row.names=NULL)
+  colnames(res)<-c("Treatment","logRRNE","seRR")
+  return(res)
+}
+NerieRR<-logRRNE(nerie)
+### how do I plot this???
+par(mfrow=c(1,1))
+plot(logRRNE~Treatment, data=NerieRR, las=2)
+
+
 #CHLA linear model, one way ANOVA and Tukey post hoc
 #replace ChlA=0 with detection limit for 150ml sample filters and extracted with 15 mLs ethanol (0.001335)
 #log+1 transformation of ChlA
-nerie$ChlA[nerie$ChlA == 0] <-0.001335
+#nerie$ChlA[nerie$ChlA == 0] <-0.001335
+#^ALREADY DONE
 nerie$logchla<-log(nerie$ChlA+1)
 neLMchla<-lm(logchla~treatment, data=nerie)
 shapiro.test(resid(neLMchla))
@@ -188,6 +246,32 @@ shapiro.test(resid(mAFDMman))
 plot(mAFDMman,which=c(1,2))
 summary(mAFDMman)
 #p, p:trace significant
+
+#Dave's Code for responce ratio
+logRRM <- function(maumee){
+  maumee$treatment <- maumee$treatment[drop=T]
+  trt <- levels(maumee$treatment)
+  trt.no <- length(trt)-1
+  means <- with(maumee,tapply(AFDM,treatment,mean,na.rm=T))
+  sds <- with(maumee,tapply(AFDM,treatment,sd,na.rm=T))
+  ns <- with(maumee,tapply(AFDM,treatment,length))
+  logRRM <- vector(length=trt.no)
+  seRR <- vector(length=trt.no)
+  
+  for(i in 1:trt.no){
+    logRRM[i] <- round(log(means[i+1])-log(means[1]),3)
+    sp2 <- (((ns[1]-1)*sds[1]^2+(ns[i+1]-1)*sds[i+1]^2)/(ns[1]+ns[i+1]-2))
+    seRR[i] <- round(sqrt(sp2*(1/(means[1]^2*ns[1])+1/(means[i+1]^2*ns[i+1]))),3)
+    
+  }
+  res <- data.frame(trt[-1],logRRM,seRR,row.names=NULL)
+  colnames(res)<-c("Treatment","logRRM","seRR")
+  return(res)
+}
+MaumeeRR<-logRRM(maumee)
+### how do I plot this???
+par(mfrow=c(1,1))
+plot(logRRM~Treatment, data=MaumeeRR, las=2)
 
 #CHLA linear model, one way ANOVA and Tukey post hoc
 maumeeLMchla<-lm(ChlA~treatment, data=maumee)

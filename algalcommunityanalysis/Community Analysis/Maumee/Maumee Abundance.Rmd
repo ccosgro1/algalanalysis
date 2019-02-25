@@ -23,4 +23,23 @@ plot(MicrocystisANOVA, which=c(1,2))
 summary(MicrocystisANOVA)
 TukeyHSD(MicrocystisANOVA)
 ```
+#Plot Microcystis Abundance to Treatment
+```{r}
+library(plyr)
+MaumeeMesoComData$Treatment <- factor(MaumeeMesoComData$Treatment,levels=c("Initial","Control","Nitrogen","Phosphorus", "Trace","N+P","N+Trace","P+Trace","N+P+Trace"))
+
+summarystatsMicro<- ddply(MaumeeMesoComData, "Treatment", summarize,
+                     Microcystis.spp..mean=mean(Microcystis.spp.),
+                     Microcystis.spp..sd=sd(Microcystis.spp.),
+                     Microcystis.spp..se=sd(Microcystis.spp.)/sqrt(length(Microcystis.spp.)))
+library(ggplot2)
+Microsummaryplot<-ggplot(summarystatsMicro, aes(Treatment, Microcystis.spp..mean, fill=Treatment))+ 
+  geom_bar(stat='identity',color='black')+
+  geom_errorbar(aes(ymin=Microcystis.spp..mean-Microcystis.spp..se, ymax=Microcystis.spp..mean+Microcystis.spp..se))+
+  theme(axis.text.x=element_text(angle = 45, hjust=1))+
+  ggtitle("Maumee Microcystis spp. % Abundance")
+
+Microsummaryplot
+
+```
 
