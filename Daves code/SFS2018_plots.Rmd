@@ -161,7 +161,7 @@ par(mai=c(1,1,0.2,1))
 plot(CHLA~TRT,data=NE1.plot,las=2,xlab="",ylim=c(0,120),ylab=expression("Chlorophyll a (mg/m"^2*")"))
 points(MCarea~as.numeric(TRT),data=NE1.MC,cex=2,col="red",lwd=2,pch=18)
 axis(4,las=2,col="red",col.axis="red")
-mtext(expression("Microcystin (µg/m"^2*")"),4,line=2.5,col="red")
+mtext(expression("Microcystin (?g/m"^2*")"),4,line=2.5,col="red")
 abline(h=13,col="red",lty=2)
 
 dev.off()
@@ -176,10 +176,10 @@ png("MAU_inc.png",height=4.2,width=6,units="in",res=200)
 par(mai=c(1,1,0.2,1))
 
 #par(pin=c(4,3))
-plot(Chla*1000~Treatment,data=Mau.plot,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (µg/L)")
+plot(Chla*1000~Treatment,data=Mau.plot,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (?g/L)")
 points(MC*20~as.numeric(Treatment),data=Mau.plot,cex=2,col="red",lwd=2,pch=18)
 axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
-mtext("Microcystin (µg/L)",4,line=2.5,col="red")
+mtext("Microcystin (?g/L)",4,line=2.5,col="red")
 abline(h=0.1*60,col="red",lty=2)
 
 dev.off()
@@ -196,8 +196,23 @@ par(mai=c(1,1,0.2,1))
 plot(CHLA~TRT,data=MAU.plot,las=2,xlab="",ylim=c(0,300),ylab=expression("Chlorophyll a (mg/m"^2*")"))
 points(MCarea~as.numeric(TRT),data=MAU.MC,cex=2,col="red",lwd=2,pch=18)
 axis(4,las=2,col="red",col.axis="red")
-mtext(expression("Microcystin (µg/m"^2*")"),4,line=2.5,col="red")
+mtext(expression("Microcystin (?g/m"^2*")"),4,line=2.5,col="red")
 abline(h=13,col="red",lty=2)
 
 dev.off()
+```
+
+```{r Maumee incubator N and trace only}
+par(mai=c(1,1,0.2,1))
+
+Mau.NT <- subset(Mau.plot,Mau.plot$Pho=="NoP"|Mau.plot$Treatment=="Initial")
+Mau.NT$Treatment <- Mau.NT$Treatment[,drop=T]
+
+plot(Chla*1000~Treatment,data=Mau.NT,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (Âµg/L)",cex.lab=1.5)
+text(3,250,"WLE HAB 2017",cex=1.5)
+points(MC*20~as.numeric(Treatment),data=Mau.NT,cex=2,col="red",lwd=2,pch=18)
+axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
+mtext("Microcystin (Âµg/L)",4,line=2.5,col="red",cex=1.5)
+abline(h=0.1*60,col="red",lty=2)
+
 ```
