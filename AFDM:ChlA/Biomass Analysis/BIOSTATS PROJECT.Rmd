@@ -1,7 +1,7 @@
 ---
 title: "Biostats Project"
 author: "Jordyn Stoll"
-date: "April 24, 2018"
+date: "April 24, 2018-"
 output: html_document
 ---
 Go back to the ANOVA and find the Tukey tst for the higest order interaction and label bars accoding to that
@@ -14,6 +14,9 @@ summary(Compiled.Meso.Data)
 str(Compiled.Meso.Data)
 #remove chelex and intial treatments
 simplified<-Compiled.Meso.Data[which(Compiled.Meso.Data$treatment!='chelex'& Compiled.Meso.Data$treatment!='initial'),]
+#order treatments in a logical way
+simplified$treatment <- factor(simplified$treatment,levels=c("control","nitrogen","phosphorus","trace","n+p","n+trace","p+trace","n+p+trace"))
+
 #subset each site by finding the 'string' in the sample ID
 ford1<-subset(simplified,grepl('Ford', simplified$sampleID))
 greenbay1<-subset(simplified,grepl('GB',simplified$sampleID))
@@ -104,7 +107,7 @@ boxplot(AFDM~phosphorus*trace, data=maumee1, main="Maumee P & Trace effect on AF
 ```
 
 Start Chla Analysis
-##FORD
+##FORD- NEEDS NORMALIZED-change significance colors once done with trans
 ```{r}
 #Chla MANOVA
 fordChlAman<-aov(ChlA~nitrogen*phosphorus*trace, data=ford1)
@@ -119,7 +122,14 @@ shapiro.test(resid(fordChlAman2))
 par(mfrow=c(1,2))
 plot(fordChlAman2,which=c(1,2), main="Ford Normality")
 summary(fordChlAman2)
-#log+1 transformation is still not normally distributed
+###STILL NEEDS TRANSFORMED
+ford1$sqrtchla<-sqrt(ford1$ChlA)
+fordsqrtman3<-aov(sqrtchla~nitrogen*phosphorus*trace, data=ford1)
+shapiro.test(resid(fordsqrtman3))
+par(mfrow=c(1,2))
+plot(fordsqrtman3,which=c(1,2), main="Ford Normality")
+summary(fordsqrtman3)
+###sqrt and log transformations don't normalize these data...
 #create plot to demonstrate ChlA~Treatment
 par(mfrow=c(1,1))
 ford1$treatment<-ford1$treatment[,drop=T]
@@ -132,34 +142,50 @@ legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("dar
 ```
 #GREENBAY
 ```{r}
-#AFDM MANOVA
-gbAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=greenbay1)
-shapiro.test(resid(gbAFDMman))
+#CHLA MANOVA
+gbCHLAman<-aov(ChlA~nitrogen*phosphorus*trace, data=greenbay1)
+shapiro.test(resid(gbCHLAman))
 par(mfrow=c(1,2))
-plot(gbAFDMman,which=c(1,2),main="Green Bay Normality")
-summary(gbAFDMman)
-#p:n significant, p and p:trace almost significant 
-#create plot to demonstrate AFDM~Treatment
+plot(gbCHLAman,which=c(1,2),main="Green Bay Normality")
+summary(gbCHLAman)
+TukeyHSD(gbCHLAman)
+#nitrogen and p+trace significant
+#create plot to demonstrate Chla~Treatment
 par(mfrow=c(1,1))
 greenbay1$treatment<-greenbay1$treatment[,drop=T]
-plot(AFDM~treatment,data=greenbay1,
-     main="Treatment Effect on AFDM: Green Bay",
-     ylab="AFDM (mg/L)",
+plot(ChlA~treatment,data=greenbay1,
+     main="Treatment Effect on Chla: Green Bay",
+     ylab="Chla (mg/L)",
      xlab="", las=2,
-     col=c("gray76","darkturquoise","gray76","gray76","darkturquoise","gray76","gray76","gray76"))
+     col=c("gray76","darkturquoise","gray76","gray76","gray76","gray76","darkturquoise","gray76"))
 legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 
-boxplot(AFDM~nitrogen*phosphorus, data=greenbay1, main="Green Bay N & P effect on AFDM", xlab="Treatment Nitrogen*Phosphorus",ylab="AFDM mg/L")
+boxplot(Chla~nitrogen*phosphorus, data=greenbay1, main="Green Bay N & P effect on Chla", xlab="Treatment Nitrogen*Phosphorus",ylab="Chla mg/L")
 ```
-##NORTH ERIE
+##NORTH ERIE-NEEDS TRANSFORMED-fix colors
 ```{r}
-#AFDM MANOVA
-neAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=nerie1)
-shapiro.test(resid(neAFDMman))
+#CHLA MANOVA
+neChlAman<-aov(ChlA~nitrogen*phosphorus*trace, data=nerie1)
+shapiro.test(resid(neChlAman))
 par(mfrow=c(1,2))
-plot(neAFDMman,which=c(1,2),main="North Erie Normality")
-summary(neAFDMman)
-#p, trace, n:p, p:trace significant 
+plot(neChlAman,which=c(1,2),main="North Erie Normality")
+summary(neChlAman)
+#LOG TRANSFORMATION
+nerie1$logchla<-log(nerie1$ChlA+1)
+nerieChlAman2<-aov(logchla~nitrogen*phosphorus*trace, data=nerie1)
+shapiro.test(resid(nerieChlAman2))
+par(mfrow=c(1,2))
+plot(nerieChlAman2,which=c(1,2), main="NErie Normality")
+summary(nerieChlAman2)
+###STILL NEEDS TRANSFORMED
+nerie1$sqrtchla<-sqrt(nerie1$ChlA)
+neriesqrtman3<-aov(sqrtchla~nitrogen*phosphorus*trace, data=nerie1)
+shapiro.test(resid(neriesqrtman3))
+par(mfrow=c(1,2))
+plot(neriesqrtman3,which=c(1,2), main="NErie Normality")
+summary(neriesqrtman3)
+
+#what's significant?
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
 nerie1$treatment<-nerie1$treatment[,drop=T]
@@ -172,25 +198,55 @@ legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("dar
 ```
 ##MAUMEE
 ```{r}
-#AFDM MANOVA
-mAFDMman<-aov(AFDM~nitrogen*phosphorus*trace, data=maumee1)
-shapiro.test(resid(mAFDMman))
+#CHLA MANOVA
+mChlAman<-aov(ChlA~nitrogen*phosphorus*trace, data=maumee1)
+shapiro.test(resid(mChlAman))
 par(mfrow=c(1,2))
-plot(mAFDMman,which=c(1,2),main="Maumee Normality")
-summary(mAFDMman)
-TukeyHSD(mAFDMman)
-#p, p:trace significant
+plot(mChlAman,which=c(1,2),main="Maumee Normality")
+summary(mChlAman)
+TukeyHSD(mChlAman)
+#n, p
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
 maumee1$treatment<-maumee1$treatment[,drop=T]
-plot(AFDM~treatment,data=maumee1,
-     main="Treatment Effect on AFDM: Maumee River",
-     ylab="AFDM (mg/L)",
+plot(ChlA~treatment,data=maumee1,
+     main="Treatment Effect on ChlA: Maumee River",
+     ylab="ChlA (mg/L)",
      xlab="", las=2,
-     col=c("gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise","gray76"))
+     col=c("darkturquoise","darkturquoise","gray76","gray76","gray76","gray76","gray76","gray76"))
 legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 
 boxplot(AFDM~phosphorus*trace, data=maumee1, main="Maumee P & Trace effect on AFDM", ylab="AFDM (mg/L)", xlab="Treatment Phosphorus*Trace metals")
+
+```
+SITE MAPS-discuss with Dave
+```{r}
+#GOAL: to make a map of Lake Erie/Lake Michigan area with 4 sites plotted
+library(maps)
+library(mapdata)
+#Where does this file come from? What is it's purpose?
+lkNDS <- read.csv(file="lakeNDSsites.csv")
+#BIG MAP FROM DAVE's CODE
+pdf(file="fullmap.pdf",height=4,width=4)
+map("worldHires","US",xlim=c(-89,-81),ylim=c(41,47),col="white")
+map("state",c("michigan","ohio","indiana","pennsylvania","illinois","west virginia","wisconsin"),add=T,col="grey90",fill=T)
+map("worldHires","Canada",add=T,col="grey90",fill=T)
+rect(-83.7,41.2,-82.2,42.2,lwd=1.2,border="red")
+rect(-88.3,44.4,-86.5,45.9,lwd=1.2,border="red")
+text(-83.7,42.2,labels="6",adj=c(-0.5,1.5),col="red",cex=0.5)
+text(-88.3,45.9,labels="4",adj=c(-5,1.5),col="red",cex=0.5)
+text(-83.3,41.75,"Maumee",cex=0.5)
+text(-83.1,41.9,"N. Erie",cex=0.5)
+text(-87.9,44.7,"Green Bay",cex=0.5)
+text(-87.0,45.65,"Ford",cex=0.5)
+points(lkNDS$Long,lkNDS$Lat,cex=0.5,pch=16,col="red")
+box()
+dev.off()
+
+
+```
+LOG RESPONCE RATIOS
+```{r}
 
 ```
 
