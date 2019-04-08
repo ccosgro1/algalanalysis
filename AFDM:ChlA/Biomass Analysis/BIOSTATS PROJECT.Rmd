@@ -107,7 +107,7 @@ boxplot(AFDM~phosphorus*trace, data=maumee1, main="Maumee P & Trace effect on AF
 ```
 
 Start Chla Analysis
-##FORD- NEEDS NORMALIZED-change significance colors once done with trans
+##FORD
 ```{r}
 #Chla MANOVA
 fordChlAman<-aov(ChlA~nitrogen*phosphorus*trace, data=ford1)
@@ -116,28 +116,21 @@ par(mfrow=c(1,2))
 plot(fordChlAman,which=c(1,2), main="Ford Normality")
 summary(fordChlAman)
 ##NEEDS TRANSFORMED
-ford1$logchla<-log(ford1$ChlA+1)
+ford1$logchla<-log(ford1$ChlA)
 fordChlAman2<-aov(logchla~nitrogen*phosphorus*trace, data=ford1)
 shapiro.test(resid(fordChlAman2))
 par(mfrow=c(1,2))
 plot(fordChlAman2,which=c(1,2), main="Ford Normality")
 summary(fordChlAman2)
-###STILL NEEDS TRANSFORMED
-ford1$sqrtchla<-sqrt(ford1$ChlA)
-fordsqrtman3<-aov(sqrtchla~nitrogen*phosphorus*trace, data=ford1)
-shapiro.test(resid(fordsqrtman3))
-par(mfrow=c(1,2))
-plot(fordsqrtman3,which=c(1,2), main="Ford Normality")
-summary(fordsqrtman3)
-###sqrt and log transformations don't normalize these data...
+#P significant
 #create plot to demonstrate ChlA~Treatment
 par(mfrow=c(1,1))
 ford1$treatment<-ford1$treatment[,drop=T]
-plot(ChlA~treatment,data=ford1,
+plot(logchla~treatment,data=ford1,
      main="Treatment Effect on ChlA: Ford River",
      ylab="ChlA (mg/L)",
      xlab="Treatment", las=2,
-     col=c("gray76","gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise"))
+     col=c("gray76","gray76","darkturquoise","gray76","gray76","gray76","gray76","gray76"))
 legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 ```
 #GREENBAY
@@ -171,29 +164,31 @@ par(mfrow=c(1,2))
 plot(neChlAman,which=c(1,2),main="North Erie Normality")
 summary(neChlAman)
 #LOG TRANSFORMATION
-nerie1$logchla<-log(nerie1$ChlA+1)
+nerie1$logchla<-log(nerie1$ChlA)
 nerieChlAman2<-aov(logchla~nitrogen*phosphorus*trace, data=nerie1)
 shapiro.test(resid(nerieChlAman2))
 par(mfrow=c(1,2))
 plot(nerieChlAman2,which=c(1,2), main="NErie Normality")
 summary(nerieChlAman2)
-###STILL NEEDS TRANSFORMED
-nerie1$sqrtchla<-sqrt(nerie1$ChlA)
-neriesqrtman3<-aov(sqrtchla~nitrogen*phosphorus*trace, data=nerie1)
-shapiro.test(resid(neriesqrtman3))
+#P, significant, N:P close
+###STILL NOT NORMAL
+#remove outlier bottles 9 and 22 (lower than expected mean for treatmen)
+nerie2<- nerie1[-c(9,22), ]
+nerie2$logchla<-log(nerie2$ChlA)
+nerieChlAman3<-aov(logchla~nitrogen*phosphorus*trace, data=nerie2)
+shapiro.test(resid(nerieChlAman3))
 par(mfrow=c(1,2))
-plot(neriesqrtman3,which=c(1,2), main="NErie Normality")
-summary(neriesqrtman3)
-
-#what's significant?
+plot(nerieChlAman3,which=c(1,2), main="NErie Normality")
+summary(nerieChlAman3)
+#P significant
 #create plot to demonstrate AFDM~Treatment
 par(mfrow=c(1,1))
-nerie1$treatment<-nerie1$treatment[,drop=T]
-plot(AFDM~treatment,data=nerie1,
+nerie2$treatment<-nerie2$treatment[,drop=T]
+plot(AFDM~treatment,data=nerie2,
      main="Treatment Effect on AFDM: North Erie",
      ylab="AFDM (mg/L)",
      xlab="", las=2,
-     col=c("gray76","darkturquoise","gray76","gray76","gray76","darkturquoise","darkturquoise","darkturquoise"))
+     col=c("gray76","gray76","darkturquoise","gray76","gray76","gray76","gray76","gray76"))
 legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 ```
 ##MAUMEE
@@ -247,6 +242,10 @@ dev.off()
 ```
 LOG RESPONCE RATIOS
 ```{r}
+#So, how do you do this??
+  
+
+
 
 ```
 

@@ -4,7 +4,7 @@ author: "Jordyn Stoll"
 date: "Feb 20, 2019"
 output: html_document
 ---
-
+REDUNDANT WITH BIOSTATS PROJECT RMD
 ```{r setup, include=FALSE}
 setwd("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Biomass Analysis/")
 Compiled.Meso.Data <-read.csv("~/Documents/GitHub/algalanalysis/AFDM:ChlA/Compiled Meso Data.csv")

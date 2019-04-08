@@ -10,10 +10,8 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-setwd("~/Dropbox/ASAP/2017 USGS/Data analysis")
-setwd("C:/Users/dcostel3/Dropbox/ASAP/2017 USGS/algalanalysis/Daves code/")
-
-options(device=quartz)
+setwd("~Documents/GitHub/algalanalysis/algalcommunityanalysis/Community Analysis/")
+HAB2017<- read.csv("~/Documents/GitHub/algalanalysis/Daves code/HAB2017_incub.csv")
 
 library(lme4)
 library(MuMIn)
@@ -23,11 +21,11 @@ library(MuMIn)
 Function calculates log RR and the standard error of RR for each treatment (treatment/control) excluding initial data. Returns a dataframe with treatment, RR and se as columns.
 
 ```{r}
-logRR <- function(dataset){
-  dataset$Treatment <- dataset$Treatment[drop=T]
-  trt <- levels(dataset$Treatment)
+logRR <- function(HAB2017){
+  HAB2017$Treatment <- HAB2017$Treatment[drop=T]
+  trt <- levels(HAB2017$Treatment)
   trt.no <- length(trt)-1
-  means <- with(dataset,tapply(Chla,Treatment,mean,na.rm=T))
+  means <- with(HAB2017,tapply(Chla,Treatment,mean,na.rm=T))
   sds <- with(dataset,tapply(Chla,Treatment,sd,na.rm=T))
   ns <- with(dataset,tapply(Chla,Treatment,length))
   logRR <- vector(length=trt.no)
@@ -49,28 +47,28 @@ logRR <- function(dataset){
 
 ##Data prep
 ```{r}
-inc <- read.csv("HAB2017_incub.csv")
+#HAB2017 <- read.csv("HAB2017_incub.csv")
 
 #Resorts the treatments to a better order
-inc$Treatment <- factor(inc$Treatment,levels=c("Initial","Control","NH4","PO4","Trace","N+P","N+trace","P+trace","N+P+trace","Chelex"))
-inc$Nit <- factor(inc$Nit,levels=c("NoN","NH4"))
-inc$Pho <- factor(inc$Pho,levels=c("NoP","PO4"))
-inc$Trace <- factor(inc$Trace,levels=c("NoT","Trace"))
+HAB2017$Treatment <- factor(HAB2017$Treatment,levels=c("Initial","Control","NH4","PO4","Trace","N+P","N+trace","P+trace","N+P+trace"))
+HAB2017$Nit <- factor(HAB2017$Nit,levels=c("NoN","NH4"))
+HAB2017$Pho <- factor(HAB2017$Pho,levels=c("NoP","PO4"))
+HAB2017$Trace <- factor(HAB2017$Trace,levels=c("NoT","Trace"))
 
 #Chelex treatments had +10 mg/treatment. Correct all values by -20 mg/L
-inc[inc$Treatment=="Chelex",]$Dry_mass <- inc[inc$Treatment=="Chelex",]$Dry_mass-20
+HAB2017[HAB2017$Treatment=="Chelex",]$Dry_mass <- HAB2017[HAB2017$Treatment=="Chelex",]$Dry_mass-20
 
-summary(inc)
+summary(HAB2017)
 
 #MC data
-MC <- read.csv("incub_MC.csv")
+MC <- read.csv("~/Documents/GitHub/algalanalysis/Daves code/incub_MC.csv")
 MCag <- aggregate(MC$MC,by=list(MC$Treatment,MC$Site),mean)
 colnames(MCag)[3]<-"MC"
 
 #Merge data
-inc$TS <- paste(inc$Site,inc$Treatment)
+HAB2017$TS <- paste(HAB2017$Site,HAB2017$Treatment)
 MCag$TS <- paste(MCag$Group.2,MCag$Group.1)
-inc2 <- merge(inc,MCag[,3:4],by="TS")
+inc2 <- merge(HAB2017,MCag[,3:4],by="TS")
 
 #Site subsets
 Ford <- subset(inc2,inc2$Site=="Ford")
@@ -111,12 +109,12 @@ These plots were used for presentations at WMAO and Slippery Rock (2017/2018)
 ```{r}
 plot(Chla*1000~Treatment,data=Ford,las=2,ylab="Chlorophyll a (µg/L)")
 plot(Chla*1000~Treatment,data=GB,las=2,ylab="Chlorophyll a (µg/L)")
-plot(Chla*1000~Treatment,data=Mau,las=2,ylab="Chlorophyll a (µg/L)")
-plot(Chla*1000~Treatment,data=NEr,las=2,ylab="Chlorophyll a (µg/L)")
+plot(Chla*1000~Treatment,data=Mau,las=2,ylab="Chlorophyll a (µg/L)", main="Maumee Chlorophyll-a Response")
+plot(Chla*1000~Treatment,data=NEr,las=2,ylab="Chlorophyll a (µg/L)", main="North Erie Chlorophyll-a Response")
 
 #Vector of colors for treatments
 cs <- c("orangered3","seagreen4","black","sienna2","chocolate4","coral3","dodgerblue")
-
+####Where does MauRR come from? 
 MauRR<-MauRR[c(1,2,4,3,5,6,7,8),]
 
 par(pin=c(3,2))
@@ -141,26 +139,33 @@ box()
 Plots of raw chlorophyll a concentration data in all treatments (i.e., no log RR). Plots also included an overlay of microcystin concentrations (data from LH Larson @ USGS). Plots were used for project update call with James Larson (Mar 2018).
 
 ```{r}
-par(pin=c(4,3))
-plot(Chla*1000~Treatment,data=Mau,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
+HAB2017$Treatment <- factor(HAB2017$Treatment,levels=c("Initial","Control","NH4","PO4","Trace","N+P","N+trace","P+trace","N+P+trace"))
+HAB2017$Nit <- factor(HAB2017$Nit,levels=c("NoN","NH4"))
+HAB2017$Pho <- factor(HAB2017$Pho,levels=c("NoP","PO4"))
+HAB2017$Trace <- factor(HAB2017$Trace,levels=c("NoT","Trace"))
+#Maumee
+par(mfrow=c(1,1)) 
+par(pin=c(4,3),mar=c(6,4,1,4))
+plot(Chla*1000~Treatment,data=Mau,las=2,xlab="Treatment",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
 stripchart(MC*25~Treatment,data=Mau,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
 axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
 mtext("Microcystin (ug/L)",4,line=2,col="red")
 legend("top","Maumee",bty="n",cex=1.4)
-
+#Green Bay
 par(pin=c(4,3))
 plot(Chla*1000~Treatment,data=GB,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
 stripchart(MC*25~Treatment,data=GB,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
 axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
 mtext("Microcystin (ug/L)",4,line=2,col="red")
 legend("top","Green Bay",bty="n",cex=1.4)
-
-par(pin=c(4,3))
+#North Erie
+par(mfrow=c(1,1)) 
+par(pin=c(4,3),mar=c(6,4,1,4))
 plot(Chla*1000~Treatment,data=NEr,las=2,xlab="",ylim=c(0,250),ylab="Chlorophyll a (ug/L)")
 stripchart(MC*25~Treatment,data=NEr,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
-axis(4,las=2,labels=seq(0,10,by=2),at=seq(0,250,by=50),col="red",col.axis="red")
+axis(4,las=2,labels=seq(0,3,by=0.5),at=seq(0,250,by=50),col="red",col.axis="red")
 mtext("Microcystin (ug/L)",4,line=2,col="red")
-legend("top","N. Erie",bty="n",cex=1.4)
+legend("top","North Erie",bty="n",cex=1.4)
 
 #Ford
 par(pin=c(4,3))
@@ -181,12 +186,13 @@ abline(h=0.1*25,col="red",lty=2)
 
 #N Erie with smaller y-axis scales
 par(pin=c(4,3))
-plot(Chla*1000~Treatment,data=NEr,las=2,xlab="",ylim=c(0,120),ylab="Chlorophyll a (ug/L)")
+par(pin=c(4,3),mar=c(6,4,1,4))
+plot(Chla*1000~Treatment,data=NEr,las=2,xlab="Treatment",ylim=c(0,120),ylab="Chlorophyll a (ug/L)")
 stripchart(MC*60~Treatment,data=NEr,vertical=T,add=T,cex=2,col="red",lwd=2,pch=18)
 axis(4,las=2,labels=seq(0,2,by=0.4),at=seq(0,120,by=24),col="red",col.axis="red")
 mtext("Microcystin (ug/L)",4,line=2,col="red")
-legend("top","N. Erie",bty="n",cex=1.4)
-abline(h=0.1*60,col="red",lty=2)
+legend("top","North Erie",bty="n",cex=1.4)
+
 ```
 
 ##Incubator stats
