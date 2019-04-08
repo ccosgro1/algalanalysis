@@ -38,8 +38,13 @@ ford1$treatment<-ford1$treatment[,drop=T]
 plot(AFDM~treatment,data=ford1,
      main="Treatment Effect on AFDM: Ford River",
      ylab="AFDM (mg/L)",
-     xlab="Treatment", las=2,
+     xlab="Treatment", xaxt="n",
      col=c("gray76","gray76","gray76","gray76","gray76","gray76","darkturquoise","darkturquoise"))
+text(ford1$treatment,labels=c("control","nitrogen","phosphorus","trace","n+p","n+trace","p+trace","n+p+trace"),adj=,srt=45)
+
+
+mtext(c("control","nitrogen","phosphorus","trace","n+p","n+trace","p+trace","n+p+trace"),side=1,line=1,at=c(1:8),srt=45)
+
 legend("topleft", bty="n", legend=c("ANOVA p <0.05","ANOVA p >0.05"),fill=c("darkturquoise","gray76"), cex=0.8)
 ```
 #GREENBAY
